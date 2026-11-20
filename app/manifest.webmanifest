@@ -1,0 +1,14 @@
+{
+  "name": "Short-Hop — pay by distance",
+  "short_name": "Short-Hop",
+  "description": "Concept rider app: distance-based Boston subway fares on Washington Metrorail's model.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#eef1f6",
+  "theme_color": "#13203a",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
