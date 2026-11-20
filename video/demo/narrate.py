@@ -36,7 +36,8 @@ STEPS = [
     ("activity", "Activity", "What you saved vs the flat fare",
      "Every trip shows what you saved compared with the flat fare."),
     ("outro", "A fair fare for Boston", "A proposal for the MBTA",
-     "If the MBTA and the City of Boston adopted this, every short trip would finally be fair."),
+     "If the MBTA and the City of Boston adopted this, every short trip would be fair, "
+     "and far fewer people would have a reason to skip paying."),
 ]
 GAP = 0.55     # pause after each line
 LEAD = 0.35

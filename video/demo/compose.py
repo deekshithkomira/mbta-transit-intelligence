@@ -97,8 +97,8 @@ def end_card() -> Image.Image:
     d.text((760, 560), "$0.80", font=font(52, BOLD), fill=GREEN)
     d.text((140, 640), "Every trip in between:", font=font(52), fill=MUTE)
     d.text((760, 640), "priced by distance", font=font(52, BOLD), fill=WHITE)
-    d.text((140, 790), "If the MBTA and the City of Boston adopted this,", font=font(40), fill=WHITE)
-    d.text((140, 845), "every short trip would finally be fair.", font=font(40), fill=WHITE)
+    d.text((140, 780), "If the MBTA and the City of Boston adopted this, every short trip", font=font(40), fill=WHITE)
+    d.text((140, 835), "would be fair, and far fewer people would have a reason to skip paying.", font=font(40), fill=WHITE)
     return im
 
 
