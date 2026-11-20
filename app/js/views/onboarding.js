@@ -73,16 +73,14 @@ function welcome(root, ctx) {
   root.innerHTML = `<div class="onb welcome">
     <div class="tick">${icon("check")}</div>
     <h1>You're all set, ${esc(S.get().profile.name)}!</h1>
-    <p class="muted">We've added <b>${money(S.WELCOME_CREDIT)}</b> of demo credit so you can try a trip right away.</p>
+    <p class="muted">Your balance starts at <b>${money(0)}</b>. Add money with a card in Wallet before your first trip.</p>
     <div class="card mini-card">${icon("shield")}<span>Everything here is simulated. No real money is ever charged, and your data never leaves this browser.</span></div>
     <button class="btn big" data-go>Start riding</button></div>`;
   root.querySelector("[data-go]").onclick = () => {
     S.update(s => {
       s.onboarded = true;
-      s.balance = S.WELCOME_CREDIT;
-      s.ledger.unshift({ id: S.uid("T"), type: "credit", amount: S.WELCOME_CREDIT, at: Date.now(), meta: { note: "Welcome credit" } });
     });
-    S.notify("Welcome to Short-Hop", `We added ${money(S.WELCOME_CREDIT)} of demo credit. Plan a trip to see your distance fare.`, "info");
+    S.notify("Welcome to Short-Hop", "Add money in Wallet, then plan a trip to see your distance fare.", "info");
     ctx.go("home");
   };
 }

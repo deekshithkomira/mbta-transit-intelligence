@@ -13,7 +13,6 @@ export const RIDER_TYPES = {
 // Weekly fare cap = price of the MBTA 7-day LinkPass ($22.50; reduced $10.00). Proposal.
 export const WEEK_CAP = { regular: 22.5, reduced: 10.0 };
 export const WEEK_MS = 7 * 24 * 3600 * 1000;
-export const WELCOME_CREDIT = 10;
 
 // Only published processor test cards are accepted: this is a public demo, real card
 // numbers must never be typed into it.

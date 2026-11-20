@@ -1,5 +1,5 @@
 // Offline support: cache the app shell; refresh network data when online.
-const CACHE = "shorthop-v3";
+const CACHE = "shorthop-v4";
 const SHELL = ["./", "index.html", "css/app.css", "fare.js", "data/network.json",
   "js/main.js", "js/store.js", "js/ui.js", "js/data.js", "js/live.js", "js/ride.js",
   "js/views/onboarding.js", "js/views/home.js", "js/views/plan.js", "js/views/ticket.js",
