@@ -50,7 +50,21 @@ At a $50 fine and $2.40 fare, deterrence needs ~4.8% of trips checked — ~15,37
 
 _Evidence:_ Barabino et al. (Transp. Res. B, 2014): optimal POP inspection ≈3.4–4.0%; Dai, Galeotti & Villeval (2023); MA Inspector General letter (Sept 2025).
 
-## 5. Tell riders the truth: most people pay
+## 5. Green Line street stops: no gates, so make every door a checkpoint
+**Problem area:** Fare evasion · open-door stops
+
+65 of 78 Green Line and Mattapan stations have no gates. The doors open on the street and anyone can walk on, and the Inspector General observed 79% to 100% of rear-door riders on the C and D branches not tapping in the morning. Gates on the street are not an answer: platforms sit in the road, and barriers would back up traffic and crowd riders at the doors. No gate, app or price can charge a rider who never taps, so the fix is to make not tapping a bad bet.
+
+- **Every door is a checkpoint.** A tap reader at every door is the only way to pay at a street stop: tap at the door to board and tap again at the door to get down. The reader knows which train it is on, and the train's GPS knows the stop, so the two taps set the distance fare with no gate and no app (a CharlieCard, bank card or phone wallet works).
+- **Measure the gap gates can't see.** Compare the automatic passenger counters at each door with the taps at that door, by stop and hour. Riders counted minus riders tapped is the evasion map for the ungated network. Publish it monthly.
+- **Send inspectors where the gap is.** Feed that map into this project's inspection optimiser, with randomised rosters, so the 19 fare-engagement staff check the trains and stops where riders skip most. A handheld reader shows whether a card tapped in on this train.
+- **Lower the bar for deterrence.** Deterrence needs inspection chance × fine ≥ fare. At the $50 fine, a $2.40 fare needs 4.8% of trips checked. A $0.80 Short-Hop fare needs 1.6%, a third of the inspections for the same deterrence on short trips.
+- Issue citations, not only warnings: from Sept 2025 to fall 2026 the MBTA reported 262 warnings and 3 citations. Without a credible penalty, skipping costs nothing.
+- At the few busiest street stops, staff the platform at peak hours with a handheld reader. Never barriers in the street.
+
+_Evidence:_ MA Inspector General letter (Sept 8, 2025): 65 of 78 ungated, 79–100% rear-door non-tap, 19 fare-engagement staff; GBH (Oct 28, 2026): 262 warnings / 3 citations; MassDOT bus compliance study (taps matched to passenger counts); Barabino et al. (Transp. Res. B, 2014).
+
+## 6. Tell riders the truth: most people pay
 **Problem area:** Fare evasion · social norms
 
 In a field experiment at French rail stations, posters with an eye cue alone did nothing. Paired with a message about how most people pay, they reduced detected evasion.
@@ -60,7 +74,7 @@ In a field experiment at French rail stations, posters with an eye cue alone did
 
 _Evidence:_ Ayal, Celse & Hochman (OBHDP 166, 2021).
 
-## 6. Short-Hop: pay by distance — end to end of a line costs $2.40
+## 7. Short-Hop: pay by distance — end to end of a line costs $2.40
 **Problem area:** Fare evasion · fare design
 
 Copley → Arlington costs the same $2.40 as Copley → Medford/Tufts (6.0 track miles), so the flat fare is worst value on the shortest trips. Under Short-Hop, riding any line end to end costs $2.40 and shorter trips pay in proportion: Copley → Medford/Tufts $1.80, Copley → Arlington the $0.80 minimum. No fare ever rises.
@@ -72,7 +86,7 @@ Copley → Arlington costs the same $2.40 as Copley → Medford/Tufts (6.0 track
 
 _Evidence:_ WMATA Tariff 49 (effective July 1, 2026) for composite miles, rounding and the min:max ratio; MBTA $2.40 flat fare; MBTA Rapid Transit Stop Distances.
 
-## 7. Treat elevators as critical service, not facilities
+## 8. Treat elevators as critical service, not facilities
 **Problem area:** Accessibility
 
 In 2025 the MBTA posted 2,062 elevator outage alerts. Chinatown (elevator) alone was out 2,881 hours. No official elevator availability rate is published.
@@ -83,7 +97,7 @@ In 2025 the MBTA posted 2,062 elevator outage alerts. Chinatown (elevator) alone
 
 _Evidence:_ MBTA Service Alerts 2025 (open data), parsed per asset.
 
-## 8. Fix the worst routes where the most riders feel it
+## 9. Fix the worst routes where the most riders feel it
 **Problem area:** Reliability
 
 Route 35 ran 47.1% on time over the last 12 months; Franklin Line was the least reliable commuter rail line at 85.9%. Subway arrival predictions were 79.7% accurate in 2026.
@@ -94,7 +108,7 @@ Route 35 ran 47.1% on time over the last 12 months; Franklin Line was the least 
 
 _Evidence:_ MBTA Bus/CR Reliability, Speed Restrictions, Prediction Accuracy (open data). Rider Census: rideshare is now riders' top alternative (43%).
 
-## 9. Win back the Red Line rider
+## 10. Win back the Red Line rider
 **Problem area:** Ridership & revenue
 
 The Red Line is at 61.9% of 2019 weekday ridership, the lowest of any line, even though its slow zones are gone. Every lost rider is lost fare revenue that no enforcement program can recover.

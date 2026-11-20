@@ -108,6 +108,44 @@ def run(r: dict) -> dict:
                         "Dai, Galeotti & Villeval (2023); MA Inspector General letter (Sept 2025).",
         },
         {
+            "problem": "Fare evasion · open-door stops",
+            "title": "Green Line street stops: no gates, so make every door a checkpoint",
+            "summary": "65 of 78 Green Line and Mattapan stations have no gates. The doors open on the "
+                       "street and anyone can walk on, and the Inspector General observed 79% to 100% "
+                       "of rear-door riders on the C and D branches not tapping in the morning. Gates "
+                       "on the street are not an answer: platforms sit in the road, and barriers would "
+                       "back up traffic and crowd riders at the doors. No gate, app or price can "
+                       "charge a rider who never taps, so the fix is to make not tapping a bad bet.",
+            "actions": [
+                "<b>Every door is a checkpoint.</b> A tap reader at every door is the only way to pay "
+                "at a street stop: tap at the door to board and tap again at the door to get down. The "
+                "reader knows which train it is on, and the train's GPS knows the stop, so the two "
+                "taps set the distance fare with no gate and no app (a CharlieCard, bank card or "
+                "phone wallet works).",
+                "<b>Measure the gap gates can't see.</b> Compare the automatic passenger counters at "
+                "each door with the taps at that door, by stop and hour. Riders counted minus riders "
+                "tapped is the evasion map for the ungated network. Publish it monthly.",
+                "<b>Send inspectors where the gap is.</b> Feed that map into this project's inspection "
+                "optimiser, with randomised rosters, so the 19 fare-engagement staff check the trains "
+                "and stops where riders skip most. A handheld reader shows whether a card tapped in "
+                "on this train.",
+                f"<b>Lower the bar for deterrence.</b> Deterrence needs inspection chance × fine ≥ "
+                f"fare. At the ${fi['assumptions']['mbta_fines'][0]} fine, a ${sh['flat_fare']:.2f} "
+                f"fare needs {pct(sh['flat_fare'] / fi['assumptions']['mbta_fines'][0])} of trips "
+                f"checked. A ${sh['rules']['min']:.2f} Short-Hop fare needs "
+                f"{pct(sh['rules']['min'] / fi['assumptions']['mbta_fines'][0])}, a third of the "
+                "inspections for the same deterrence on short trips.",
+                "Issue citations, not only warnings: from Sept 2025 to fall 2026 the MBTA reported "
+                "262 warnings and 3 citations. Without a credible penalty, skipping costs nothing.",
+                "At the few busiest street stops, staff the platform at peak hours with a handheld "
+                "reader. Never barriers in the street.",
+            ],
+            "evidence": "MA Inspector General letter (Sept 8, 2025): 65 of 78 ungated, 79–100% "
+                        "rear-door non-tap, 19 fare-engagement staff; GBH (Oct 28, 2026): 262 warnings "
+                        "/ 3 citations; MassDOT bus compliance study (taps matched to passenger "
+                        "counts); Barabino et al. (Transp. Res. B, 2014).",
+        },
+        {
             "problem": "Fare evasion · social norms",
             "title": "Tell riders the truth: most people pay",
             "summary": "In a field experiment at French rail stations, posters with an eye cue alone "

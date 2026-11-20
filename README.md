@@ -71,6 +71,12 @@ The MBTA reported that its Track Improvement Program saves riders about **2.4M m
 
    **Two-gate check: sneaking in is no longer enough. You would have to sneak out too.** In Phase 2, exit gates at gated stations open only for a card or phone that tapped in. A rider who jumped the entry gate has no tap-in, so at the exit they pay $2.40 or evade a second time, in view of staff and cameras. Emergency doors and ungated Green Line stops stay open, so this works alongside taller gates and on-board checks, not instead of them.
 
+   **Open-door stops: no gates, so every door is a checkpoint.** 65 of 78 Green Line and Mattapan stations have no gates (MA Inspector General, 2025). The doors open on the street, anyone can walk on, and gates in the road would back up traffic. The fix has four parts:
+   * **Tap at the door.** Readers at every door: tap to board, tap again to get down. The reader knows its train and the train's GPS knows the stop, so the two taps set the fare with a CharlieCard, bank card or phone, no app needed.
+   * **Measure the gap.** Automatic passenger counts at each door minus taps at that door, by stop and hour, is the evasion map gates can't give.
+   * **Inspect where the gap is.** Randomised on-board checks scheduled by this project's optimiser, with citations, not only warnings (262 warnings and 3 citations from Sept 2025 to fall 2026).
+   * **Lower the bar.** Deterrence needs inspection chance × fine ≥ fare. At the $50 fine, $2.40 needs 4.8% of trips checked; $0.80 needs 1.6%, a third as many.
+
    **[▶ Open the Short-Hop app](https://deekshithkomira.github.io/mbta-transit-intelligence/app/)**, a complete mobile web app you can install on a phone, with no build step and no framework ([`site/app/`](site/app)):
    * **First launch:** splash screen, three intro slides, profile setup with rider type; new riders start at $0 and add money with a test card (no joining bonus).
    * **Home:** Short-Hop card and balance, quick actions, an active-trip banner, weekly fare-cap progress, saved routes, **live MBTA service alerts**, and recent trips.
