@@ -1,0 +1,119 @@
+{
+ "stations": [
+  {
+   "id": "place-coecl",
+   "name": "Copley",
+   "lat": 42.349974,
+   "lon": -71.077447,
+   "km": 0.0,
+   "fare": 0
+  },
+  {
+   "id": "place-armnl",
+   "name": "Arlington",
+   "lat": 42.351902,
+   "lon": -71.070893,
+   "km": 0.57,
+   "fare": 0.8
+  },
+  {
+   "id": "place-boyls",
+   "name": "Boylston",
+   "lat": 42.35302,
+   "lon": -71.06459,
+   "km": 1.16,
+   "fare": 0.8
+  },
+  {
+   "id": "place-pktrm",
+   "name": "Park Street",
+   "lat": 42.3563946,
+   "lon": -71.0624242,
+   "km": 1.56,
+   "fare": 0.8
+  },
+  {
+   "id": "place-gover",
+   "name": "Government Center",
+   "lat": 42.359705,
+   "lon": -71.059215,
+   "km": 1.97,
+   "fare": 0.8
+  },
+  {
+   "id": "place-haecl",
+   "name": "Haymarket",
+   "lat": 42.363021,
+   "lon": -71.05829,
+   "km": 2.38,
+   "fare": 0.8
+  },
+  {
+   "id": "place-north",
+   "name": "North Station",
+   "lat": 42.365577,
+   "lon": -71.06129,
+   "km": 2.76,
+   "fare": 0.8
+  },
+  {
+   "id": "place-spmnl",
+   "name": "Science Park/West End",
+   "lat": 42.366664,
+   "lon": -71.067666,
+   "km": 3.41,
+   "fare": 0.8
+  },
+  {
+   "id": "place-lech",
+   "name": "Lechmere",
+   "lat": 42.371572,
+   "lon": -71.076584,
+   "km": 4.25,
+   "fare": 0.8
+  },
+  {
+   "id": "place-esomr",
+   "name": "East Somerville",
+   "lat": 42.379467,
+   "lon": -71.086625,
+   "km": 5.6,
+   "fare": 0.97
+  },
+  {
+   "id": "place-gilmn",
+   "name": "Gilman Square",
+   "lat": 42.387928,
+   "lon": -71.096766,
+   "km": 6.83,
+   "fare": 1.19
+  },
+  {
+   "id": "place-mgngl",
+   "name": "Magoun Square",
+   "lat": 42.393682,
+   "lon": -71.1063879,
+   "km": 7.93,
+   "fare": 1.38
+  },
+  {
+   "id": "place-balsq",
+   "name": "Ball Square",
+   "lat": 42.399889,
+   "lon": -71.111003,
+   "km": 8.69,
+   "fare": 1.51
+  },
+  {
+   "id": "place-mdftf",
+   "name": "Medford/Tufts",
+   "lat": 42.407975,
+   "lon": -71.117044,
+   "km": 9.65,
+   "fare": 1.68
+  }
+ ],
+ "flat": 2.4,
+ "floor": 0.8,
+ "e_line_km": 13.8
+}

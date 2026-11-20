@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Short-Hop explainer</title>
+<style>
+  html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: #070a10;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; color: #eef2f8; }
+  canvas { position: absolute; inset: 0; }
+  .layer { position: absolute; inset: 0; pointer-events: none; }
+  .cap { position: absolute; left: 96px; bottom: 92px; max-width: 1100px; opacity: 0; }
+  .cap .k { font-size: 22px; letter-spacing: .22em; text-transform: uppercase; color: #ffc72c; font-weight: 700; }
+  .cap .h { font-size: 64px; font-weight: 800; line-height: 1.04; letter-spacing: -.02em; margin-top: 10px; }
+  .cap .s { font-size: 30px; color: #aab4c6; margin-top: 14px; line-height: 1.3; }
+  .title { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; opacity: 0; }
+  .title .h { font-size: 96px; font-weight: 800; letter-spacing: -.03em; line-height: 1.02; }
+  .title .s { font-size: 34px; color: #aab4c6; margin-top: 22px; }
+  .title .k { font-size: 24px; letter-spacing: .3em; color: #ffc72c; font-weight: 700; margin-bottom: 26px; text-transform: uppercase; }
+  .logo { display: inline-grid; place-items: center; width: 74px; height: 74px; border: 7px solid #eef2f8;
+    border-radius: 50%; font-weight: 900; font-size: 44px; margin-bottom: 26px; }
+  .phone { position: absolute; right: 150px; top: 150px; width: 380px; height: 760px; border-radius: 56px;
+    background: #0f1420; border: 10px solid #2a3245; box-shadow: 0 40px 120px rgba(0,0,0,.6); opacity: 0;
+    transform: translateY(40px); padding: 70px 34px; box-sizing: border-box; }
+  .phone .notch { position: absolute; top: 16px; left: 50%; width: 120px; height: 26px; margin-left: -60px;
+    background: #2a3245; border-radius: 14px; }
+  .phone .app { font-size: 20px; color: #8b95a9; letter-spacing: .1em; text-transform: uppercase; font-weight: 700; }
+  .phone .row { margin-top: 26px; background: #171d2b; border-radius: 18px; padding: 18px 20px; }
+  .phone .row small { display: block; color: #8b95a9; font-size: 16px; }
+  .phone .row b { font-size: 28px; }
+  .phone .price { margin-top: 30px; text-align: center; }
+  .phone .price .old { font-size: 30px; color: #8b95a9; text-decoration: line-through; }
+  .phone .price .new { font-size: 92px; font-weight: 900; color: #3ecf8e; letter-spacing: -.03em; }
+  .phone .btn { margin-top: 28px; background: #ffc72c; color: #111; text-align: center; border-radius: 18px;
+    font-weight: 800; font-size: 26px; padding: 20px; }
+  .cards { position: absolute; left: 96px; right: 96px; top: 190px; display: grid;
+    grid-template-columns: repeat(3, 1fr); gap: 34px; }
+  .card { background: rgba(18,23,34,.92); border: 2px solid #232b3d; border-radius: 28px; padding: 40px 38px;
+    opacity: 0; transform: translateY(30px); }
+  .card .i { font-size: 54px; }
+  .card .h { font-size: 38px; font-weight: 800; margin-top: 18px; line-height: 1.1; }
+  .card .s { font-size: 25px; color: #aab4c6; margin-top: 14px; line-height: 1.35; }
+  .tagline { position: absolute; left: 0; right: 0; bottom: 120px; text-align: center; font-size: 40px;
+    font-weight: 800; opacity: 0; }
+  .scrim { position: absolute; inset: 0; background: radial-gradient(ellipse at center, rgba(7,10,16,.92) 0%, rgba(7,10,16,.78) 55%, rgba(7,10,16,.55) 100%); opacity: 0; }
+  .chip { position: absolute; top: 60px; left: 96px; font-size: 22px; letter-spacing: .2em; color: #8b95a9;
+    font-weight: 700; text-transform: uppercase; opacity: 0; }
+  .chip b { color: #00b35a; }
+</style>
+<script type="importmap">{ "imports": { "three": "./node_modules/three/build/three.module.js" } }</script>
+</head>
+<body>
+<div class="layer">
+  <div class="scrim" id="scrim"></div>
+  <div class="chip" id="chip">MBTA Green Line · <b>Copley → Medford/Tufts</b> · real station positions</div>
+
+  <div class="title" id="t-intro"><div>
+    <div class="k">Boston · MBTA subway</div>
+    <div class="h">1 stop or 13 stops.<br>Same $2.40.</div>
+    <div class="s">Why short trips drive fare evasion — and how a distance fare fixes it.</div></div></div>
+
+  <div class="cap" id="c1"><div class="k">Today · flat fare</div><div class="h">Copley → Arlington<br>1 stop · $2.40</div>
+    <div class="s">A one-stop ride costs the full fare.</div></div>
+  <div class="cap" id="c2"><div class="k">Today · flat fare</div><div class="h">Copley → Medford/Tufts<br>13 stops · $2.40</div>
+    <div class="s">Thirteen stops cost exactly the same.</div></div>
+  <div class="cap" id="c3"><div class="k">The loophole</div><div class="h">$2.40 for one stop?</div>
+    <div class="s">Short trips are the worst deal, so that's where students jump the gate or tailgate behind a paying rider.</div></div>
+  <div class="cap" id="c4"><div class="k">The fix · Short-Hop</div><div class="h">Pay by distance.</div>
+    <div class="s">Book in the MBTA app or tap a card. Tap in, tap out — the fare is set by real track distance.</div></div>
+  <div class="cap" id="c5" style="max-width:1400px"><div class="k">Distance fare · Green Line E</div><div class="h" style="font-size:52px">Whole line, 13.8 km = $2.40<br>Copley → Medford/Tufts, 9.7 km = $1.68</div>
+    <div class="s">Short hops pay the $0.80 minimum. Ride less, pay less — never more than today.</div></div>
+
+  <div class="phone" id="phone"><div class="notch"></div>
+    <div class="app">MBTA · Short-Hop</div>
+    <div class="row"><small>From</small><b>Copley</b></div>
+    <div class="row"><small>To</small><b>Arlington</b></div>
+    <div class="row"><small>Trip</small><b>1 stop · 0.6 km</b></div>
+    <div class="price"><div class="old">$2.40</div><div class="new">$0.80</div></div>
+    <div class="btn" id="btn">Tap in to ride</div></div>
+
+  <div class="cards" id="cards">
+    <div class="card"><div class="i">⇄</div><div class="h">Tap in, tap out</div>
+      <div class="s">Exit validators set the price by distance travelled, as Washington's Metrorail does ($2.25–$6.75).</div></div>
+    <div class="card"><div class="i">⛨</div><div class="h">No tap-out = $2.40</div>
+      <div class="s">Skipping the exit tap costs exactly today's fare, so gaming the system never pays.</div></div>
+    <div class="card"><div class="i">◎</div><div class="h">Proven elsewhere</div>
+      <div class="s">Hyderabad Metro: 10 distance zones, ₹11 within 2 km up to ₹69 beyond 24 km.</div></div>
+  </div>
+
+  <div class="title" id="t-end"><div>
+    <div class="logo">T</div>
+    <div class="h">Pay by distance.<br>Never more than today.</div>
+    <div class="s">Short-Hop · MBTA Transit Intelligence</div></div></div>
+</div>
+<script type="module" src="scene.js"></script>
+</body>
+</html>

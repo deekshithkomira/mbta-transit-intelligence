@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MBTA Transit Intelligence</title>
+<meta name="description" content="Ridership recovery, slow zones, reliability, accessibility and fare integrity on Boston's MBTA — built entirely from official open data.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="vendor/leaflet.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand"><span class="t">T</span> Transit Intelligence <small>MBTA · Boston</small></div>
+  <nav>
+    <a href="#ridership">Ridership</a><a href="#slowzones">Slow zones</a>
+    <a href="#reliability">Reliability</a><a href="#experience">Experience</a>
+    <a href="#fares">Fare integrity</a><a href="#shorthop">Short-Hop</a><a href="#solutions">Solutions</a>
+    <a href="#method">Method</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <p class="eyebrow">An end-to-end analytics study on official MBTA open data</p>
+  <h1>Boston rebuilt its subway track.<br><span>The riders haven't all come back. And the fare system leaks.</span></h1>
+  <p class="lede">13.7 million fare-gate records, 912,000 bus reliability observations, 130,000 slow-zone
+    records, 393,000 delay observations and a 145,000-response passenger survey — joined in one
+    warehouse and turned into decisions.</p>
+  <div class="kpis" id="kpis"></div>
+</section>
+
+<section id="ridership" class="block">
+  <div class="sh"><span class="num">01</span><h2>Ridership recovery &amp; forecast</h2></div>
+  <p class="findings" data-f="ridership"></p>
+  <div class="grid2">
+    <div class="card"><h3>Average weekday ridership vs. same month 2019</h3><div class="chart" id="c-recovery"></div></div>
+    <div class="card"><h3>Systemwide weekday ridership · 12-month forecast (80% interval)</h3><div class="chart" id="c-forecast"></div>
+      <p class="note" id="bt-note"></p></div>
+  </div>
+  <div class="card"><h3>Station recovery map — weekday gate taps, last 12 months vs. 2019</h3>
+    <div id="m-stations" class="map"></div>
+    <p class="note">Circle size = current weekday taps; colour = recovery. Lechmere is excluded: it reopened in 2022 as an
+      ungated Green Line Extension station, so its taps collapsed while its riders did not.</p></div>
+</section>
+
+<section id="slowzones" class="block">
+  <div class="sh"><span class="num">02</span><h2>Slow zones &amp; the price riders paid</h2></div>
+  <p class="findings" data-f="slow_zones"></p>
+  <div class="card"><h3>Speed restrictions on the network — drag the timeline</h3>
+    <div class="scrub"><input type="range" id="sz-date" min="0" max="100" value="0"><button id="sz-play">▶ Play</button>
+      <span id="sz-label" class="mono"></span></div>
+    <div id="m-slow" class="map tall"></div></div>
+  <div class="grid2">
+    <div class="card"><h3>Restricted track-miles by line</h3><div class="chart" id="c-sz"></div></div>
+    <div class="card"><h3>Rider-hours lost to excess trip time (heavy rail, monthly)</h3><div class="chart" id="c-delay"></div></div>
+  </div>
+  <div class="grid2">
+    <div class="card"><h3>How long does a slow zone survive? (Kaplan–Meier)</h3><div class="chart" id="c-km"></div>
+      <p class="note">Probability a restriction is still in place <i>t</i> days after it is reported; open restrictions are right-censored.</p></div>
+    <div class="card"><h3>Track restricted vs. minutes lost per trip (line-months)</h3><div class="chart" id="c-reg"></div>
+      <p class="note" id="reg-note"></p></div>
+  </div>
+</section>
+
+<section id="reliability" class="block">
+  <div class="sh"><span class="num">03</span><h2>Bus &amp; Commuter Rail reliability</h2></div>
+  <p class="findings" data-f="reliability"></p>
+  <div class="grid2">
+    <div class="card"><h3>Least reliable bus routes — empirical-Bayes on-time %, 90% credible interval</h3><div class="chart tall" id="c-routes"></div></div>
+    <div class="card"><h3>On-time performance over time</h3><div class="chart" id="c-otp"></div>
+      <p class="note">Shaded: MBTA's Aug-2025 switch to an adjusted bus OTP definition — values either side are not directly comparable.</p>
+      <h3 style="margin-top:18px">Commuter Rail lines, last 12 months</h3><div class="chart short" id="c-cr"></div></div>
+  </div>
+</section>
+
+<section id="experience" class="block">
+  <div class="sh"><span class="num">04</span><h2>Rider experience, accessibility &amp; fare equity</h2></div>
+  <p class="findings" data-f="experience"></p>
+  <div class="grid3">
+    <div class="card"><h3>Elevator &amp; escalator outage-hours by station (2025)</h3><div class="chart tall" id="c-access"></div></div>
+    <div class="card"><h3>Low-income riders vs. reduced-fare use (2025 survey)</h3><div class="chart tall" id="c-equity"></div></div>
+    <div class="card"><h3>Arrival-prediction accuracy &amp; rider satisfaction</h3><div class="chart" id="c-pred"></div><div class="chart" id="c-sat"></div></div>
+  </div>
+</section>
+
+<section id="fares" class="block">
+  <div class="sh"><span class="num">05</span><h2>Fare integrity — deploying inspection where it actually deters</h2></div>
+  <p class="findings" data-f="fare_integrity"></p>
+  <div class="grid2">
+    <div class="card"><h3>Inspection simulator</h3>
+      <p class="note">Real weekday demand for every station × hour. Choose a staffing budget and how strongly riders respond to inspection;
+        the optimiser re-solves in your browser (closed-form water-filling) and compares against today's common heuristics.</p>
+      <label>Inspector-hours per weekday <b id="v-h">32</b><input type="range" id="s-h" min="4" max="160" step="4" value="32"></label>
+      <label>Deterrence responsiveness k <b id="v-k">3</b><input type="range" id="s-k" min="0.5" max="10" step="0.5" value="3"></label>
+      <div class="sim" id="sim"></div>
+      <div class="chart" id="c-heat"></div></div>
+    <div class="card"><h3>Break-even inspection rate by fine level</h3><div class="chart short" id="c-be"></div>
+      <h3 style="margin-top:18px">Annual subway fare at risk — scenarios</h3><div class="chart short" id="c-risk"></div>
+      <p class="note">Gates count only riders who paid, so unpaid entries = paid × r/(1−r). Evasion rate <i>r</i> is a scenario input, not a measurement.</p></div>
+  </div>
+</section>
+
+<section id="shorthop" class="block">
+  <div class="sh"><span class="num">06</span><h2>Short-Hop — pay by distance, whole line = today's $2.40</h2></div>
+  <p class="findings" data-f="short_hop"></p>
+  <div class="card"><h3>Explainer · 3D animation with narration, on the real Copley → Medford/Tufts route</h3>
+    <video class="explainer" src="media/short-hop-explainer.mp4" poster="media/short-hop-poster.jpg" controls preload="none" playsinline></video></div>
+  <div class="grid2">
+    <div class="card"><h3>Trip planner — real MBTA track distances</h3>
+      <div class="pick"><label>From<select id="sh-from"></select></label><label>To<select id="sh-to"></select></label></div>
+      <div class="sim" id="sh-out"></div>
+      <div id="m-hop" class="map"></div>
+      <p class="note" id="sh-path"></p></div>
+    <div class="card"><h3>Fare rule — tune it</h3>
+      <p class="note" style="margin-top:0">fare = today's $2.40 × (distance travelled ÷ distance that pays full fare), never below the minimum, never above $2.40.</p>
+      <label>Full $2.40 is paid for
+        <select id="s-mode"><option value="line">riding the whole line, first stop to last (your rule)</option>
+        <option value="uniform">a fixed distance on every line (uniform rate per km)</option></select></label>
+      <label id="l-km">Uniform full-fare distance <b id="v-km">13.8 km</b><input type="range" id="s-km" min="4" max="28.4" step="0.2" value="13.8"></label>
+      <label>Minimum fare <b id="v-floor">$0.80</b><input type="range" id="s-floor" min="0.25" max="2.4" step="0.05" value="0.80"></label>
+      <p class="note">Default minimum $0.80 = one third of $2.40, Washington Metrorail's min:max ratio ($2.25 / $6.75). Hyderabad's ratio (₹11 / ₹69) would be $0.38.</p>
+      <table class="mini" id="sh-table"></table>
+      <p class="note">Break-even: paying riders on a trip priced f instead of $2.40 must grow by 2.40/f − 1. The MBTA publishes no station-to-station trip table, so this is the condition a pilot must meet, not a forecast.</p></div>
+  </div>
+  <div class="grid3">
+    <div class="card prose"><h3>How it works in the app</h3>
+      <p><b>1 · Book.</b> Pick a destination in the MBTA app, or just tap a contactless card. The price shows before you pay.</p>
+      <p><b>2 · Tap in, tap out.</b> The fare is set on exit by the distance actually travelled, as on Washington's Metrorail.
+        <b>No tap-out = today's $2.40</b>, so forgetting never costs more than now and gaming the system never pays.</p>
+      <p><b>3 · Ride further?</b> The difference is charged on exit, never above $2.40.</p></div>
+    <div class="card prose"><h3>Why Boston hasn't, and how to get there</h3>
+      <p>MBTA subway gates validate <b>entry only</b>, and most Green Line surface stops have no gates at all, so a flat fare was the only enforceable price.
+        Contactless taps (live since Aug 2024) make an account-based tap-out possible: exit validators at gated stations first (Phase 1), then on-board validators on the Green Line.</p></div>
+    <div class="card prose"><h3>Researched precedents</h3>
+      <p><b>Hyderabad Metro</b>: 10 distance zones, ₹11 (≤2 km), 17, 28, 37, 47, 51, 56, 61, 65, ₹69 (&gt;24 km) (<a href="https://ltmetro.com/wp-content/uploads/2025/05/Hyderabad-Metro-Rail-Revised-Fare-Chart-Final.pdf" target="_blank" rel="noopener">L&amp;T Metro, 23 May 2025</a>).</p>
+      <p><b>Washington Metrorail</b>: distance-based, weekday $2.25–$6.75, tap-in/tap-out (<a href="https://www.wmata.com/fares/metro-2024-fare-changes/" target="_blank" rel="noopener">WMATA</a>).</p>
+      <p><b>MBTA today</b>: $2.40 flat, set in 2019; fall-2026 changes are pilots, not a fare increase (<a href="https://www.mbta.com/fares/recent-and-upcoming-fare-projects" target="_blank" rel="noopener">MBTA</a>).</p></div>
+  </div>
+</section>
+
+<section id="solutions" class="block">
+  <div class="sh"><span class="num">07</span><h2>Solutions playbook</h2></div>
+  <div id="solutions-body"></div>
+</section>
+
+<section id="method" class="block">
+  <div class="sh"><span class="num">08</span><h2>Method &amp; sources</h2></div>
+  <div class="grid2">
+    <div class="card prose">
+      <h3>Pipeline</h3>
+      <p><b>Ingest</b> — official MBTA Open Data Portal files, ArcGIS feature services (paged, row-count verified) and the MBTA V3 API.
+        <b>Warehouse</b> — DuckDB staging → marts with stated grain and automated data tests.
+        <b>Analysis</b> — Holt-Winters / SARIMA with rolling-origin backtests, beta-binomial empirical Bayes,
+        Kaplan-Meier survival, fixed-effects regression, and a convex inspection-allocation optimiser.
+        <b>Publish</b> — this static site, refreshed weekly by CI.</p>
+      <h3>Honesty rules</h3>
+      <p>Every number on this page is computed from the data or cited. Methodology breaks are flagged, not blended.
+        Associations are not called causes. Evasion figures that the MBTA does not publish are treated as scenarios.</p>
+    </div>
+    <div class="card"><h3>Data sources</h3><ul id="sources" class="sources"></ul><p class="note" id="gen"></p></div>
+  </div>
+</section>
+<footer>Built with official MBTA open data · Not affiliated with the MBTA · <a href="https://github.com/deekshithkomira/mbta-transit-intelligence">Source on GitHub</a></footer>
+
+<script src="vendor/echarts.min.js"></script>
+<script src="vendor/leaflet.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
