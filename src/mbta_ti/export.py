@@ -78,6 +78,13 @@ def run() -> None:
         findings[name] = result["findings"]
         (config.SITE_DATA / f"{name}.json").write_text(
             json.dumps(result, default=_default, separators=(",", ":")))
+    # Rider app (site/app): station graph + fare rules, consumed by site/app/fare.js
+    app_data = config.ROOT / "site" / "app" / "data"
+    app_data.mkdir(parents=True, exist_ok=True)
+    shr = results["short_hop"]
+    (app_data / "network.json").write_text(json.dumps(
+        {"rules": shr["rules"], "flat_fare": shr["flat_fare"], "graph": shr["graph"],
+         "examples": shr["examples"]}, default=_default, separators=(",", ":")))
     playbook = solutions.run(results)
     (config.SITE_DATA / "solutions.json").write_text(json.dumps(playbook, default=_default))
     _write_playbook_md(playbook)

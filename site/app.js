@@ -349,75 +349,16 @@ function fares(fi) {
   });
 }
 
-/* ---- Short-Hop distance-fare planner (mirrors mbta_ti.analysis.short_hop) ---- */
-function shortHop(sh, net) {
-  const g = sh.graph, CAP = sh.flat_fare;
-  const ids = Object.keys(g.names).sort((a, b) => g.names[a].localeCompare(g.names[b]));
-  const linesAt = {};
-  g.patterns.forEach(p => p.stations.forEach(s => (linesAt[s] = linesAt[s] || new Set()).add(p.route.split("-")[0])));
-  const from = document.getElementById("sh-from"), to = document.getElementById("sh-to");
-  const opt = id => `<option value="${id}">${g.names[id]} · ${[...(linesAt[id] || [])].join("/")}</option>`;
-  from.innerHTML = to.innerHTML = ids.map(opt).join("");
-  from.value = "place-coecl"; to.value = "place-armnl";
-  const lineCol = { Red: C.red, Orange: C.orange, Blue: C.blue, Green: C.green, Mattapan: C.red };
-  const m = baseMap("m-hop", net), layer = L.layerGroup().addTo(m);
-
-  function dijkstra(a, b) {
-    const dist = { [a]: 0 }, prev = { [a]: null }, done = new Set();
-    while (true) {
-      let u = null, best = Infinity;
-      for (const k in dist) if (!done.has(k) && dist[k] < best) { best = dist[k]; u = k; }
-      if (u === null || u === b) break;
-      done.add(u);
-      for (const [v, w] of Object.entries(g.adj[u])) if (best + w < (dist[v] ?? Infinity)) { dist[v] = best + w; prev[v] = u; }
-    }
-    const path = []; for (let u = b; u != null; u = prev[u]) path.unshift(u);
-    return [dist[b], path];
-  }
-  function fullLine(a, b) {
-    let pool = g.patterns.filter(p => p.stations.includes(a) && p.stations.includes(b));
-    if (!pool.length) pool = g.patterns.filter(p => p.stations.includes(a) || p.stations.includes(b));
-    return pool.reduce((x, y) => (y.length_m > x.length_m ? y : x));
-  }
-  const fareOf = (d, full, floor) => d <= 0 ? 0 : d / full >= 0.98 ? CAP : Math.min(CAP, Math.max(floor, CAP * d / full));
-  const ctl = id => document.getElementById(id);
-
-  function update() {
-    const mode = ctl("s-mode").value, km = +ctl("s-km").value, floor = +ctl("s-floor").value;
-    ctl("l-km").style.display = mode === "uniform" ? "block" : "none";
-    ctl("v-km").textContent = km.toFixed(1) + " km";
-    ctl("v-floor").textContent = "$" + floor.toFixed(2);
-    const quote = (a, b) => {
-      const [d, path] = dijkstra(a, b), pat = fullLine(a, b);
-      const full = mode === "line" ? pat.length_m : km * 1000;
-      return { d, path, pat, f: fareOf(d, full, floor) };
-    };
-    const q = quote(from.value, to.value), n = q.path.length - 1;
-    ctl("sh-out").innerHTML =
-      `<div><div class="v">${(q.d / 1000).toFixed(1)} km</div><div class="l">${n} stop${n === 1 ? "" : "s"}</div></div>` +
-      `<div><div class="v">$${q.f.toFixed(2)}</div><div class="l">distance fare</div></div>` +
-      `<div><div class="v up">−$${(CAP - q.f).toFixed(2)}</div><div class="l">vs. today's flat $${CAP.toFixed(2)}</div></div>`;
-    layer.clearLayers();
-    const pts = q.path.map(id => net.stops[id]).filter(Boolean).map(s => [s.lat, s.lon]);
-    q.path.slice(1).forEach((id, i) => {
-      const a = q.path[i], common = [...(linesAt[a] || [])].find(l => (linesAt[id] || new Set()).has(l)) || "Green";
-      L.polyline([pts[i], pts[i + 1]], { color: lineCol[common], weight: 7, opacity: .95 }).addTo(layer);
-    });
-    pts.forEach((p, i) => L.circleMarker(p, { radius: i === 0 || i === pts.length - 1 ? 7 : 4, color: "#fff", weight: 2,
-      fillColor: "#0b0e14", fillOpacity: 1 }).bindTooltip(g.names[q.path[i]]).addTo(layer));
-    if (pts.length > 1) m.fitBounds(L.latLngBounds(pts).pad(0.5));
-    ctl("sh-path").textContent = q.path.map(id => g.names[id]).join(" → ") +
-      (mode === "line" ? `  ·  full fare = whole ${q.pat.name} (${(q.pat.length_m / 1000).toFixed(1)} km)` : "");
-    const rows = [["place-coecl", "place-armnl"], ["place-coecl", "place-pktrm"], ["place-coecl", "place-mdftf"],
-      ["place-hsmnl", "place-mdftf"], ["place-harsq", "place-cntsq"], ["place-alfcl", "place-brntn"], ["place-asmnl", "place-matt"]]
-      .filter(([a, b]) => g.adj[a] && g.adj[b]).map(([a, b]) => ({ a, b, ...quote(a, b) }));
-    ctl("sh-table").innerHTML = "<tr><th>Trip</th><th>km</th><th>Today</th><th>New</th><th>Break-even</th></tr>" +
-      rows.map(r => `<tr><td>${g.names[r.a]} → ${g.names[r.b]}</td><td class="n">${(r.d / 1000).toFixed(1)}</td>` +
-        `<td class="n">$${CAP.toFixed(2)}</td><td class="n g">$${r.f.toFixed(2)}</td>` +
-        `<td class="n">${r.f >= CAP ? "—" : "+" + Math.round((CAP / r.f - 1) * 100) + "%"}</td></tr>`).join("");
-  }
-  [from, to, ...["s-mode", "s-km", "s-floor"].map(ctl)].forEach(el => el.addEventListener("input", update));
-  update();
+/* ---- Short-Hop: rules and examples (the interactive planner is the rider app in site/app/) ---- */
+function shortHop(sh) {
+  const r = sh.rules, w = sh.research.wmata, $ = id => document.getElementById(id), m = x => "$" + x.toFixed(2);
+  $("sh-rules").innerHTML = "<tr><th></th><th>Washington</th><th>Boston</th></tr>" +
+    [["Base fare · first 3 composite mi", w.base, r.base], ["Each extra composite mile", w.per_mile, r.per_mile],
+     ["Maximum", w.max, r.max]].map(([k, a, b]) => `<tr><td>${k}</td><td class="n">${m(a)}</td><td class="n g">${m(b)}</td></tr>`).join("") +
+    `<tr><td>Nights &amp; weekends</td><td class="n">${m(w.offpeak_min)}–${m(w.offpeak_max)}</td><td class="n g">${m(r.offpeak_min)}–${m(r.offpeak_max)}</td></tr>`;
+  $("sh-table").innerHTML = "<tr><th>Trip</th><th>mi</th><th>Today</th><th>Short-Hop</th><th>Break-even</th></tr>" +
+    sh.examples.map(e => `<tr><td>${e.from} → ${e.to}</td><td class="n">${e.composite_mi.toFixed(1)}</td><td class="n">${m(sh.flat_fare)}</td>` +
+      `<td class="n g">${m(e.fare)}</td><td class="n">${e.fare >= sh.flat_fare ? "—" : "+" + Math.round(e.breakeven_growth * 100) + "%"}</td></tr>`).join("");
 }
 
 function solutions(sol) {
@@ -434,5 +375,5 @@ function solutions(sol) {
     ["meta", "ridership", "reliability", "slow_zones", "stations", "experience", "fare_integrity", "network", "short_hop"].map(load));
   const sol = await load("solutions").catch(() => null);
   findings(meta); kpis(rd, sz, ex, fi); ridership(rd, st, net); slowZones(sz, net);
-  reliability(rel); experience(ex); fares(fi); shortHop(sh, net); solutions(sol);
+  reliability(rel); experience(ex); fares(fi); shortHop(sh); solutions(sol);
 })();

@@ -5,7 +5,7 @@
    "name": "Copley",
    "lat": 42.349974,
    "lon": -71.077447,
-   "km": 0.0,
+   "mi": 0,
    "fare": 0
   },
   {
@@ -13,7 +13,7 @@
    "name": "Arlington",
    "lat": 42.351902,
    "lon": -71.070893,
-   "km": 0.57,
+   "mi": 0.36,
    "fare": 0.8
   },
   {
@@ -21,7 +21,7 @@
    "name": "Boylston",
    "lat": 42.35302,
    "lon": -71.06459,
-   "km": 1.16,
+   "mi": 0.71,
    "fare": 0.8
   },
   {
@@ -29,7 +29,7 @@
    "name": "Park Street",
    "lat": 42.3563946,
    "lon": -71.0624242,
-   "km": 1.56,
+   "mi": 0.93,
    "fare": 0.8
   },
   {
@@ -37,7 +37,7 @@
    "name": "Government Center",
    "lat": 42.359705,
    "lon": -71.059215,
-   "km": 1.97,
+   "mi": 1.19,
    "fare": 0.8
   },
   {
@@ -45,7 +45,7 @@
    "name": "Haymarket",
    "lat": 42.363021,
    "lon": -71.05829,
-   "km": 2.38,
+   "mi": 1.41,
    "fare": 0.8
   },
   {
@@ -53,7 +53,7 @@
    "name": "North Station",
    "lat": 42.365577,
    "lon": -71.06129,
-   "km": 2.76,
+   "mi": 1.54,
    "fare": 0.8
   },
   {
@@ -61,7 +61,7 @@
    "name": "Science Park/West End",
    "lat": 42.366664,
    "lon": -71.067666,
-   "km": 3.41,
+   "mi": 1.69,
    "fare": 0.8
   },
   {
@@ -69,7 +69,7 @@
    "name": "Lechmere",
    "lat": 42.371572,
    "lon": -71.076584,
-   "km": 4.25,
+   "mi": 2.07,
    "fare": 0.8
   },
   {
@@ -77,43 +77,42 @@
    "name": "East Somerville",
    "lat": 42.379467,
    "lon": -71.086625,
-   "km": 5.6,
-   "fare": 0.97
+   "mi": 2.78,
+   "fare": 0.8
   },
   {
    "id": "place-gilmn",
    "name": "Gilman Square",
    "lat": 42.387928,
    "lon": -71.096766,
-   "km": 6.83,
-   "fare": 1.19
+   "mi": 3.52,
+   "fare": 0.9
   },
   {
    "id": "place-mgngl",
    "name": "Magoun Square",
    "lat": 42.393682,
    "lon": -71.1063879,
-   "km": 7.93,
-   "fare": 1.38
+   "mi": 4.14,
+   "fare": 1.0
   },
   {
    "id": "place-balsq",
    "name": "Ball Square",
    "lat": 42.399889,
    "lon": -71.111003,
-   "km": 8.69,
-   "fare": 1.51
+   "mi": 4.63,
+   "fare": 1.1
   },
   {
    "id": "place-mdftf",
    "name": "Medford/Tufts",
    "lat": 42.407975,
    "lon": -71.117044,
-   "km": 9.65,
-   "fare": 1.68
+   "mi": 5.24,
+   "fare": 1.2
   }
  ],
  "flat": 2.4,
- "floor": 0.8,
- "e_line_km": 13.8
+ "floor": 0.8
 }

@@ -123,28 +123,30 @@ def run(r: dict) -> dict:
         },
         {
             "problem": "Fare evasion · fare design",
-            "title": "Short-Hop: pay by distance, whole line = today's $2.40",
-            "summary": f"Copley → Arlington ({sh_one['km']:.1f} km) costs the same ${sh['flat_fare']:.2f} "
-                       f"as Copley → Medford/Tufts ({sh_far['km']:.1f} km), so the flat fare is worst "
-                       "value exactly where skipping payment is most tempting. Under a distance fare, "
-                       "riding a whole line end to end costs $2.40 and shorter trips pay in "
-                       f"proportion: Copley → Medford/Tufts ${sh_far['fare']:.2f}, Copley → Arlington "
-                       f"the ${sh['defaults']['floor']:.2f} minimum. No fare ever rises.",
+            "title": "Short-Hop: distance fares on the Washington Metrorail model",
+            "summary": f"Copley → Arlington costs the same ${sh['flat_fare']:.2f} as Copley → "
+                       f"Medford/Tufts ({sh_far['rail_mi']:.1f} track miles), so the flat fare is "
+                       "worst value exactly where skipping payment is most tempting. Washington's "
+                       "model, scaled so the maximum equals today's fare: "
+                       f"${sh['rules']['base']:.2f} covers the first {sh['rules']['base_miles']:.0f} "
+                       f"composite miles, +${sh['rules']['per_mile']:.2f} per extra mile, capped at "
+                       f"${sh['rules']['max']:.2f}. Copley → Arlington ${sh_one['fare']:.2f}; "
+                       f"Copley → Medford/Tufts ${sh_far['fare']:.2f}. No fare ever rises.",
             "actions": [
-                "Book in the MBTA app or tap contactless; the fare is set on exit by track distance "
-                "travelled (MBTA stop-distance data). A missing tap-out defaults to $2.40, so "
-                "gaming never pays.",
-                "Phase 1: exit validators at gated subway stations. Phase 2: on-board validators "
-                "on the Green Line.",
+                "Tap in and tap out with the Short-Hop app or a contactless card; the fare is set on "
+                "exit from composite miles (average of track and straight-line distance), rounded up "
+                "to $0.05, exactly as Washington Metrorail does.",
+                f"A missing tap-out is charged ${sh['rules']['missed_tap_out']:.2f} (MBTA gates validate "
+                "entry only, so skipping the exit tap must never be cheaper).",
+                f"Nights after 9:30pm and weekends: ${sh['rules']['offpeak_min']:.2f}–"
+                f"${sh['rules']['offpeak_max']:.2f}; students and seniors pay half.",
                 f"Pilot and test break-even: a ${sh_one['fare']:.2f} short trip needs "
-                f"{pct(sh_one['breakeven_growth'], 0)} more paying riders on it; "
-                f"Copley → Medford/Tufts at ${sh_far['fare']:.2f} needs "
-                f"{pct(sh_far['breakeven_growth'], 0)}.",
-                "Start with off-peak hours or student accounts if revenue risk must be limited.",
+                f"{pct(sh_one['breakeven_growth'], 0)} more paying riders on it; Copley → "
+                f"Medford/Tufts at ${sh_far['fare']:.2f} needs {pct(sh_far['breakeven_growth'], 0)}.",
             ],
-            "evidence": "Hyderabad Metro 10-zone distance fares, ₹11–₹69 (L&T Metro, 23 May 2025); "
-                        "Washington Metrorail distance fares $2.25–$6.75 with tap-in/tap-out "
-                        "(WMATA); MBTA $2.40 flat fare; MBTA Rapid Transit Stop Distances.",
+            "evidence": "WMATA Tariff 49 (effective July 1, 2026): $2.25 base for the first 3 "
+                        "composite miles, $0.45 per additional mile, $6.75 maximum, rounded up to "
+                        "$0.05; MBTA $2.40 flat fare; MBTA Rapid Transit Stop Distances.",
         },
         {
             "problem": "Accessibility",

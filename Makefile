@@ -9,6 +9,6 @@ ingest:   ; $(PY) -m mbta_ti.cli ingest
 build:    ; $(PY) -m mbta_ti.cli build
 analyze:  ; $(PY) -m mbta_ti.cli analyze
 all:      ; $(PY) -m mbta_ti.cli all
-test:     ; $(PY) -m pytest -q
+test:     ; $(PY) -m pytest -q && node --test tests/*.test.mjs
 lint:     ; $(PY) -m ruff check src tests
 serve:    ; python3 -m http.server 8000 -d site

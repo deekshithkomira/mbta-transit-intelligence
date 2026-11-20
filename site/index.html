@@ -103,40 +103,39 @@
 </section>
 
 <section id="shorthop" class="block">
-  <div class="sh"><span class="num">06</span><h2>Short-Hop — pay by distance, whole line = today's $2.40</h2></div>
+  <div class="sh"><span class="num">06</span><h2>Short-Hop — distance fares on the Washington Metrorail model</h2></div>
   <p class="findings" data-f="short_hop"></p>
-  <div class="card"><h3>Explainer · 3D animation with narration, on the real Copley → Medford/Tufts route</h3>
-    <video class="explainer" src="media/short-hop-explainer.mp4" poster="media/short-hop-poster.jpg" controls preload="none" playsinline></video></div>
   <div class="grid2">
-    <div class="card"><h3>Trip planner — real MBTA track distances</h3>
-      <div class="pick"><label>From<select id="sh-from"></select></label><label>To<select id="sh-to"></select></label></div>
-      <div class="sim" id="sh-out"></div>
-      <div id="m-hop" class="map"></div>
-      <p class="note" id="sh-path"></p></div>
-    <div class="card"><h3>Fare rule — tune it</h3>
-      <p class="note" style="margin-top:0">fare = today's $2.40 × (distance travelled ÷ distance that pays full fare), never below the minimum, never above $2.40.</p>
-      <label>Full $2.40 is paid for
-        <select id="s-mode"><option value="line">riding the whole line, first stop to last (your rule)</option>
-        <option value="uniform">a fixed distance on every line (uniform rate per km)</option></select></label>
-      <label id="l-km">Uniform full-fare distance <b id="v-km">13.8 km</b><input type="range" id="s-km" min="4" max="28.4" step="0.2" value="13.8"></label>
-      <label>Minimum fare <b id="v-floor">$0.80</b><input type="range" id="s-floor" min="0.25" max="2.4" step="0.05" value="0.80"></label>
-      <p class="note">Default minimum $0.80 = one third of $2.40, Washington Metrorail's min:max ratio ($2.25 / $6.75). Hyderabad's ratio (₹11 / ₹69) would be $0.38.</p>
-      <table class="mini" id="sh-table"></table>
-      <p class="note">Break-even: paying riders on a trip priced f instead of $2.40 must grow by 2.40/f − 1. The MBTA publishes no station-to-station trip table, so this is the condition a pilot must meet, not a forecast.</p></div>
+    <div class="card"><h3>The rider app — try it (demo money only)</h3>
+      <div class="appframe"><iframe src="app/" title="Short-Hop rider app" loading="lazy"></iframe></div>
+      <p class="note">Plan a trip, tap in to get a QR ticket, tap out where you get off, and pay for the distance you rode.
+        <a href="app/" target="_blank" rel="noopener">Open full screen</a> · installable on a phone home screen · works offline.</p></div>
+    <div>
+      <div class="card"><h3>Fare rules — Washington Metrorail, scaled to Boston</h3>
+        <table class="mini" id="sh-rules"></table>
+        <p class="note">Composite miles = average of track distance and straight-line distance; fares round up to $0.05.
+          Boston keeps every Washington ratio (max = 3 × base, per mile = 20% of base) and sets the maximum to today's $2.40, so no trip costs more than now.
+          Missed tap-out = $2.40 because MBTA gates check entry only.</p></div>
+      <div class="card"><h3>Example trips</h3><table class="mini" id="sh-table"></table>
+        <p class="note">Break-even: paying riders on a trip priced f instead of $2.40 must grow by 2.40/f − 1. The MBTA publishes no station-to-station trip table, so this is the condition a pilot must meet, not a forecast.</p></div>
+    </div>
   </div>
+  <div class="card"><h3>Explainer · narrated 3D animation on the real Copley → Medford/Tufts route</h3>
+    <video class="explainer" src="media/short-hop-explainer.mp4" poster="media/short-hop-poster.jpg" controls preload="none" playsinline></video></div>
   <div class="grid3">
-    <div class="card prose"><h3>How it works in the app</h3>
-      <p><b>1 · Book.</b> Pick a destination in the MBTA app, or just tap a contactless card. The price shows before you pay.</p>
+    <div class="card prose"><h3>How riders use it</h3>
+      <p><b>1 · Plan.</b> Pick a destination; the app shows the fare and how it was calculated before you ride.</p>
       <p><b>2 · Tap in, tap out.</b> The fare is set on exit by the distance actually travelled, as on Washington's Metrorail.
-        <b>No tap-out = today's $2.40</b>, so forgetting never costs more than now and gaming the system never pays.</p>
-      <p><b>3 · Ride further?</b> The difference is charged on exit, never above $2.40.</p></div>
+        <b>No tap-out = today's $2.40</b>, so skipping the exit tap never pays.</p>
+      <p><b>3 · Ride further or get off early.</b> You pay for the trip you took, never above $2.40.</p></div>
     <div class="card prose"><h3>Why Boston hasn't, and how to get there</h3>
       <p>MBTA subway gates validate <b>entry only</b>, and most Green Line surface stops have no gates at all, so a flat fare was the only enforceable price.
         Contactless taps (live since Aug 2024) make an account-based tap-out possible: exit validators at gated stations first (Phase 1), then on-board validators on the Green Line.</p></div>
-    <div class="card prose"><h3>Researched precedents</h3>
-      <p><b>Hyderabad Metro</b>: 10 distance zones, ₹11 (≤2 km), 17, 28, 37, 47, 51, 56, 61, 65, ₹69 (&gt;24 km) (<a href="https://ltmetro.com/wp-content/uploads/2025/05/Hyderabad-Metro-Rail-Revised-Fare-Chart-Final.pdf" target="_blank" rel="noopener">L&amp;T Metro, 23 May 2025</a>).</p>
-      <p><b>Washington Metrorail</b>: distance-based, weekday $2.25–$6.75, tap-in/tap-out (<a href="https://www.wmata.com/fares/metro-2024-fare-changes/" target="_blank" rel="noopener">WMATA</a>).</p>
-      <p><b>MBTA today</b>: $2.40 flat, set in 2019; fall-2026 changes are pilots, not a fare increase (<a href="https://www.mbta.com/fares/recent-and-upcoming-fare-projects" target="_blank" rel="noopener">MBTA</a>).</p></div>
+    <div class="card prose"><h3>Sources</h3>
+      <p><b>Washington Metrorail</b>: $2.25 base for the first 3 composite miles, $0.45 per additional mile, $6.75 maximum, $2.25–$2.50 late night and weekends
+        (<a href="https://www.wmata.com/content/dam/wmata-com/about/public-records/Tariff%2049.pdf" target="_blank" rel="noopener">WMATA Tariff 49, effective July 1, 2026</a>).</p>
+      <p><b>MBTA today</b>: $2.40 flat, set in 2019; fall-2026 changes are pilots, not a fare increase (<a href="https://www.mbta.com/fares/recent-and-upcoming-fare-projects" target="_blank" rel="noopener">MBTA</a>).</p>
+      <p><b>Distances</b>: MBTA Rapid Transit Stop Distances (open data).</p></div>
   </div>
 </section>
 

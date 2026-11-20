@@ -1,15 +1,15 @@
 # Short-Hop explainer video
 
-A narrated 3D animation, about 70 seconds long, that explains the Short-Hop distance fare:
+A narrated 3D animation, about 70 seconds long, that explains the Short-Hop distance fare (Washington Metrorail model):
 
-1. **Today:** Copley → Arlington (1 stop, 0.6 km) and Copley → Medford/Tufts (13 stops, 9.7 km) both cost $2.40.
+1. **Today:** Copley → Arlington (1 stop, 0.35 track miles) and Copley → Medford/Tufts (13 stops, 6.0 track miles) both cost $2.40.
 2. **The loophole:** a student facing $2.40 for one stop jumps the gate behind a paying rider.
-3. **The fix:** book in the app, tap in and tap out, and Copley → Arlington costs $0.80.
-4. **Distance fare:** riding the whole Green Line E (13.8 km) costs $2.40. Copley → Medford/Tufts costs $1.68. Short hops pay the $0.80 minimum.
+3. **The fix:** tap in and tap out with the Short-Hop app, and Copley → Arlington costs $0.80.
+4. **Washington model:** $0.80 covers the first 3 composite miles, +$0.16 a mile, maximum $2.40 (today's fare). Copley → Medford/Tufts costs $1.20.
 5. **Safeguards:**
    * The exit tap sets the price.
    * A missing tap-out costs $2.40.
-   * Hyderabad Metro (₹11–₹69, 10 zones) and Washington Metrorail ($2.25–$6.75) already charge by distance.
+   * Washington Metrorail already charges this way ($2.25 base, $0.45 a mile, $6.75 maximum).
 
 Stations sit at their real coordinates (MBTA V3 API), distances come from the MBTA Rapid Transit Stop Distances dataset, and fares come from `mbta_ti.analysis.short_hop` (`route.json`).
 
@@ -17,7 +17,7 @@ Stations sit at their real coordinates (MBTA V3 API), distances come from the MB
 
 `audio.py` builds the soundtrack:
 
-* **Narration:** generated with macOS `say` (voice "Aman", English (India); switch with `--voice "Samantha"`).
+* **Narration:** generated with macOS `say` in US English (voice "Samantha"; change with `--voice`). "Copley" is given as phonemes so it is pronounced KOP-lee.
 * **Music:** a synthesised background bed that ducks under the voice.
 * **Sound effects:** the train passing, a gate beep, a fare-evasion alarm, a price chime, and the fare-ladder bars rising.
 

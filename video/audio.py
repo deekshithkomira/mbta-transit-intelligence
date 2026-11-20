@@ -27,18 +27,20 @@ BOUNDS = [0, 6, 14, 22, 30, 41.2, 49, 54.4, 58]
 LINES = [
     "In Boston, one subway stop or thirteen stops costs exactly the same. "
     "Two dollars and forty cents.",
-    "Copley to Arlington is one stop, about half a kilometer. You pay the full two forty.",
-    "Copley to Medford Tufts is thirteen stops, almost ten kilometers. The same two forty.",
+    "Copley to Arlington is one stop. You pay the full two forty.",
+    "Copley to Medford Tufts is thirteen stops, six miles of track. The same two forty.",
     "So for a short hop, the fare is the worst deal on the system. That's where students "
     "jump the gate, or slip through behind someone who paid.",
-    "Short-Hop fixes the price, not just the gate. Book in the MBTA app, tap in at Copley, "
-    "tap out at Arlington. Point six kilometers. Eighty cents.",
-    "The fare follows real track distance. Ride the whole line, first stop to last, and you "
-    "pay two forty. Copley to Medford Tufts drops to one sixty-eight. Ride less, pay less.",
+    "Short-Hop fixes the price, not just the gate. Tap in at Copley, tap out at Arlington, "
+    "and pay eighty cents.",
+    "It works like Washington's Metro. Eighty cents covers the first three miles, then sixteen "
+    "cents a mile, never more than two forty. Copley to Medford Tufts costs one twenty.",
     "Forget to tap out, and you're charged the full two forty, so cheating never pays. "
-    "Hyderabad and Washington already price by distance.",
+    "Washington already runs its subway this way.",
     "Pay by distance. Never more than today.",
 ]
+# Words the synthesiser mispronounces, given as Apple phonemes: Copley = KOP-lee.
+PRONOUNCE = {"Copley": "[[inpt PHON]]k1AApliy[[inpt TEXT]]"}
 LEAD = 0.5      # silence before each line inside its scene
 TAIL = 0.9      # breathing room after each line
 
@@ -46,6 +48,8 @@ TAIL = 0.9      # breathing room after each line
 def tts(text: str, voice: str, rate: int) -> np.ndarray:
     with tempfile.TemporaryDirectory() as d:
         aiff, wav_path = Path(d) / "v.aiff", Path(d) / "v.wav"
+        for word, phon in PRONOUNCE.items():
+            text = text.replace(word, phon)
         subprocess.run(["say", "-v", voice, "-r", str(rate), "-o", str(aiff), text], check=True)
         subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", str(aiff), "-ac", "1", "-ar", str(SR),
                         str(wav_path)], check=True)
@@ -181,8 +185,8 @@ def place(track: np.ndarray, clip: np.ndarray, at: float, gain: float = 1.0) -> 
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--voice", default="Aman (English (India))")
-    ap.add_argument("--rate", type=int, default=172)
+    ap.add_argument("--voice", default="Samantha")          # US English
+    ap.add_argument("--rate", type=int, default=176)
     args = ap.parse_args()
 
     clips = [tts(line, args.voice, args.rate) for line in LINES]

@@ -1,5 +1,4 @@
-"""Short-Hop: a distance-based subway fare where riding a whole line end to end costs
-today's flat fare, and shorter trips cost proportionally less.
+"""Short-Hop: a distance-based MBTA subway fare built on Washington Metrorail's fare model.
 
 The problem
 -----------
@@ -7,32 +6,41 @@ Every MBTA subway trip costs the same $2.40 (MBTA fares page; unchanged since 20
 One stop costs the same as thirteen, so the flat fare is the worst value exactly where
 walking, cycling or evading is most tempting.
 
-The rule
---------
-    fare = clamp( cap * d / D , floor, cap )
+The model: Washington Metrorail (WMATA Tariff 49, effective July 1, 2026)
+-------------------------------------------------------------------------
+* Base fare covers the first 3 composite miles.
+* Each additional composite mile costs 20% of the base fare.
+* The maximum fare is 3x the base fare.
+* Composite mile = average of (a) distance along the rail system and (b) straight-line
+  distance between origin and destination.
+* Fares round UP to the nearest $0.05.
+* Late night (9:30pm-close) and weekends: a narrow flat band, $2.25-$2.50 in Washington
+  (i.e. base to base x 1.11).
+* Reduced fares are 50% of the regular fare, rounded DOWN to the nearest $0.05.
 
-* d   = track distance actually travelled, from the MBTA Rapid Transit Stop Distances
-        dataset (GTFS-derived meters between consecutive stations).
-* D   = the distance that pays the full fare.  Default ("line" mode): the full length
-        of the line being ridden, so **riding a line from its first stop to its last
-        costs $2.40** and every shorter trip costs less in proportion.  Alternative
-        ("uniform" mode): one network-wide reference distance, so a kilometre costs
-        the same on every line.
-* cap = $2.40, today's fare: no trip ever costs more than it does now.
-* floor = minimum fare.  Default $0.80 = one third of the cap, the same min:max ratio
-        as Washington Metrorail's distance fares ($2.25-$6.75).  Hyderabad Metro's
-        ratio is 11/69 (Rs 11 within 2 km to Rs 69 beyond 24 km), i.e. $0.38.
+Boston calibration
+------------------
+Keep every Washington ratio, but set the maximum to today's MBTA fare so **no trip ever
+costs more than it does now**:
+    max  = $2.40      base = max / 3 = $0.80      per mile = 20% x base = $0.16
+    off-peak band = $0.80-$0.90 (Washington's 2.50/2.25 ratio, rounded up)
+
+One deliberate difference: Washington charges only the base fare for a missed exit tap,
+because its exit gates make tapping out unavoidable.  MBTA gates validate entry only, so a
+missing tap-out is charged the maximum ($2.40) — otherwise skipping the exit tap would
+always be the cheapest choice.
 
 What the data cannot say
 ------------------------
 The MBTA does not publish station-to-station trip tables, so revenue impact is a
-break-even condition, not a forecast: a trip priced at f instead of F breaks even
-only if paying riders on it grow by F/f - 1.
+break-even condition, not a forecast: a trip priced at f instead of $2.40 breaks even only
+if paying riders on it grow by 2.40/f - 1.
 """
 from __future__ import annotations
 
 import heapq
 import json
+import math
 
 import pandas as pd
 
@@ -40,11 +48,19 @@ from mbta_ti import config
 from mbta_ti.analysis.common import pct
 
 FLAT_FARE = 2.40
-DEFAULT_FLOOR = round(FLAT_FARE * 2.25 / 6.75, 2)          # WMATA min:max ratio -> $0.80
-HYDERABAD_FLOOR = round(FLAT_FARE * 11 / 69, 2)             # Hyderabad min:max ratio -> $0.38
-HYDERABAD_ZONES_INR = [(2, 11), (4, 17), (6, 28), (9, 37), (12, 47), (15, 51), (18, 56),
-                       (21, 61), (24, 65), (None, 69)]       # L&T Metro press release, 23 May 2025
-WMATA_RANGE = (2.25, 6.75)
+METERS_PER_MILE = 1609.344
+
+# Washington Metrorail ratios (WMATA Tariff 49, effective 2026-07-01)
+WMATA = {"base": 2.25, "per_mile": 0.45, "max": 6.75, "base_miles": 3.0,
+         "offpeak_min": 2.25, "offpeak_max": 2.50, "reduced_share": 0.5,
+         "source": "https://www.wmata.com/content/dam/wmata-com/about/public-records/Tariff%2049.pdf"}
+
+# Boston calibration: same ratios, maximum = today's flat fare
+MAX_FARE = FLAT_FARE
+BASE_FARE = round(MAX_FARE * WMATA["base"] / WMATA["max"], 2)          # $0.80
+PER_MILE = round(BASE_FARE * WMATA["per_mile"] / WMATA["base"], 2)     # $0.16
+BASE_MILES = WMATA["base_miles"]                                        # 3 composite miles
+MISSED_TAP_OUT = MAX_FARE
 
 EXAMPLES = [
     ("place-coecl", "place-armnl"),   # Copley -> Arlington (next stop)
@@ -58,16 +74,39 @@ EXAMPLES = [
 ]
 
 
-FULL_TOLERANCE = 0.98  # the two published directions of a line differ by a few metres
+def round_up_5c(x: float) -> float:
+    return math.ceil(round(x * 20, 6)) / 20
 
 
-def fare(d_m: float, full_m: float, floor: float = DEFAULT_FLOOR, cap: float = FLAT_FARE) -> float:
-    if d_m <= 0:
+def round_down_5c(x: float) -> float:
+    return math.floor(round(x * 20, 6)) / 20
+
+
+# Washington's late-night/weekend band is base..base x (2.50/2.25); same ratio here -> $0.90
+OFFPEAK_MAX = round_up_5c(BASE_FARE * WMATA["offpeak_max"] / WMATA["offpeak_min"])
+
+
+def composite_miles(rail_m: float, straight_m: float) -> float:
+    return (rail_m + straight_m) / 2 / METERS_PER_MILE
+
+
+def fare(composite_mi: float, *, period: str = "peak", reduced: bool = False) -> float:
+    """Washington-model fare, Boston calibration.  period: 'peak' (regular) or 'offpeak'."""
+    if composite_mi <= 0:
         return 0.0
-    share = d_m / full_m
-    if share >= FULL_TOLERANCE:
-        return cap
-    return round(min(cap, max(floor, cap * share)), 2)
+    extra = max(0.0, composite_mi - BASE_MILES)
+    regular = min(MAX_FARE, round_up_5c(BASE_FARE + PER_MILE * extra))
+    if period == "offpeak":
+        regular = min(OFFPEAK_MAX, regular)
+    return round_down_5c(regular * WMATA["reduced_share"]) if reduced else regular
+
+
+def haversine_m(a: dict, b: dict) -> float:
+    r = 6_371_000
+    p1, p2 = math.radians(a["lat"]), math.radians(b["lat"])
+    dp, dl = p2 - p1, math.radians(b["lon"] - a["lon"])
+    h = math.sin(dp / 2) ** 2 + math.cos(p1) * math.cos(p2) * math.sin(dl / 2) ** 2
+    return 2 * r * math.asin(math.sqrt(h))
 
 
 def load_patterns() -> list[dict]:
@@ -117,69 +156,70 @@ def shortest(adj: dict[str, dict[str, float]], src: str, dst: str) -> tuple[floa
     return dist[dst], path
 
 
-def full_length(patterns: list[dict], a: str, b: str) -> tuple[float, str]:
-    """Length that pays the full fare in 'line' mode: the longest pattern serving both
-    ends (rider-friendly), else the longest pattern serving either end (transfer trip)."""
-    both = [p for p in patterns if a in p["stations"] and b in p["stations"]]
-    pool = both or [p for p in patterns if a in p["stations"] or b in p["stations"]]
-    best = max(pool, key=lambda p: p["length_m"])
-    return best["length_m"], best["name"]
+def quote(adj, stops: dict, a: str, b: str) -> dict:
+    rail_m, path = shortest(adj, a, b)
+    straight_m = haversine_m(stops[a], stops[b])
+    cm = composite_miles(rail_m, straight_m)
+    return {"rail_mi": rail_m / METERS_PER_MILE, "straight_mi": straight_m / METERS_PER_MILE,
+            "composite_mi": cm, "stops": len(path) - 1, "path": path,
+            "fare": fare(cm), "offpeak": fare(cm, period="offpeak"),
+            "reduced": fare(cm, reduced=True)}
 
 
 def run() -> dict:
     net = json.loads((config.RAW / "v3_network.json").read_text())
-    names = {k: v["name"] for k, v in net["stops"].items()}
+    stops = net["stops"]
+    names = {k: v["name"] for k, v in stops.items()}
     patterns = load_patterns()
     adj = build_graph(patterns)
 
     examples = []
     for a, b in EXAMPLES:
-        d, path = shortest(adj, a, b)
-        full_m, pat = full_length(patterns, a, b)
-        f = fare(d, full_m)
-        examples.append({"from": names[a], "to": names[b], "stops": len(path) - 1,
-                         "km": d / 1000, "full_line": pat, "full_line_km": full_m / 1000,
-                         "fare": f, "saving": round(FLAT_FARE - f, 2),
-                         "breakeven_growth": FLAT_FARE / f - 1})
+        q = quote(adj, stops, a, b)
+        examples.append({"from": names[a], "to": names[b], "stops": q["stops"],
+                         "rail_mi": q["rail_mi"], "straight_mi": q["straight_mi"],
+                         "composite_mi": q["composite_mi"], "fare": q["fare"],
+                         "offpeak": q["offpeak"], "reduced": q["reduced"],
+                         "saving": round(FLAT_FARE - q["fare"], 2),
+                         "breakeven_growth": FLAT_FARE / q["fare"] - 1})
     ex = {(e["from"], e["to"]): e for e in examples}
-    lengths = sorted({(p["name"], p["length_m"]) for p in patterns}, key=lambda x: x[1])
-    per_km = [(n, FLAT_FARE / (m / 1000)) for n, m in lengths]
+    one, far = ex[("Copley", "Arlington")], ex[("Copley", "Medford/Tufts")]
+    red = ex[("Alewife", "Braintree")]
+    cap_at = BASE_MILES + (MAX_FARE - BASE_FARE) / PER_MILE
 
-    one = ex[("Copley", "Arlington")]
-    far = ex[("Copley", "Medford/Tufts")]
-    whole = ex[("Heath Street", "Medford/Tufts")]
     findings = [
-        f"Today Copley → Arlington (1 stop, {one['km']:.1f} km) and Copley → Medford/Tufts "
-        f"({far['stops']} stops, {far['km']:.1f} km) both cost ${FLAT_FARE:.2f}.",
-        f"Distance fare with the whole line = ${FLAT_FARE:.2f}: Heath Street → Medford/Tufts "
-        f"({whole['km']:.1f} km) pays ${whole['fare']:.2f}; Copley → Medford/Tufts pays "
-        f"${far['fare']:.2f}; Copley → Arlington pays the ${DEFAULT_FLOOR:.2f} minimum.",
-        f"Minimum fare ${DEFAULT_FLOOR:.2f} = one third of the cap, Washington Metrorail's "
-        f"min:max ratio (${WMATA_RANGE[0]:.2f}–${WMATA_RANGE[1]:.2f}); Hyderabad's ratio "
-        f"(₹11–₹69) would give ${HYDERABAD_FLOOR:.2f}.",
-        f"Trade-off: because lines differ in length ({lengths[0][1] / 1000:.1f} km to "
-        f"{lengths[-1][1] / 1000:.1f} km), 'whole line = $2.40' prices a kilometre between "
-        f"${per_km[-1][1]:.2f} and ${per_km[0][1]:.2f}. A uniform-rate option is included for "
-        f"comparison.",
+        f"Today Copley → Arlington (1 stop) and Copley → Medford/Tufts ({far['stops']} stops, "
+        f"{far['rail_mi']:.1f} track miles) both cost ${FLAT_FARE:.2f}.",
+        f"Washington Metrorail model, scaled to Boston: ${BASE_FARE:.2f} covers the first "
+        f"{BASE_MILES:.0f} composite miles, +${PER_MILE:.2f} per extra mile, maximum "
+        f"${MAX_FARE:.2f} (today's fare) — the same ratios as Washington's $2.25 / $0.45 / $6.75.",
+        f"Copley → Arlington costs ${one['fare']:.2f}; Copley → Medford/Tufts "
+        f"{far['composite_mi']:.1f} composite miles = ${far['fare']:.2f}; Alewife → Braintree "
+        f"reaches the ${red['fare']:.2f} maximum (cap reached at {cap_at:.0f} composite miles).",
+        f"Nights after 9:30pm and weekends: ${BASE_FARE:.2f}–${OFFPEAK_MAX:.2f}; reduced fares "
+        f"(students, seniors) are half price; a missing tap-out is charged ${MISSED_TAP_OUT:.2f}.",
         f"Revenue break-even: a ${one['fare']:.2f} short trip must grow paying riders on it by "
         f"{pct(one['breakeven_growth'], 0)}; Copley → Medford/Tufts at ${far['fare']:.2f} needs "
         f"{pct(far['breakeven_growth'], 0)}. Pilot before system-wide rollout.",
     ]
+    station_ids = sorted(adj)
+    lines_at: dict[str, set] = {}
+    for p in patterns:
+        for s in p["stations"]:
+            lines_at.setdefault(s, set()).add(p["route"].split("-")[0])
     return {
         "flat_fare": FLAT_FARE,
-        "defaults": {"floor": DEFAULT_FLOOR, "mode": "line", "uniform_km": 13.8},
-        "research": {"hyderabad_zones_inr": HYDERABAD_ZONES_INR,
-                     "hyderabad_source": "https://ltmetro.com/wp-content/uploads/2025/05/"
-                                         "Hyderabad-Metro-Rail-Revised-Fare-Chart-Final.pdf",
-                     "wmata_range": WMATA_RANGE,
-                     "wmata_source": "https://www.wmata.com/fares/metro-2024-fare-changes/",
-                     "mbta_fare_source": "https://www.mbta.com/fares/subway-fares",
-                     "hyderabad_floor": HYDERABAD_FLOOR},
+        "rules": {"base": BASE_FARE, "per_mile": PER_MILE, "base_miles": BASE_MILES,
+                  "max": MAX_FARE, "offpeak_min": BASE_FARE, "offpeak_max": OFFPEAK_MAX,
+                  "reduced_share": WMATA["reduced_share"], "missed_tap_out": MISSED_TAP_OUT,
+                  "cap_reached_mi": cap_at},
+        "research": {"wmata": WMATA,
+                     "mbta_fare_source": "https://www.mbta.com/fares/subway-fares"},
         "examples": examples,
-        "line_lengths": [{"pattern": n, "km": m / 1000, "usd_per_km": FLAT_FARE / (m / 1000)}
-                         for n, m in lengths],
         "graph": {"adj": {k: {v: round(w, 1) for v, w in nb.items()} for k, nb in adj.items()},
-                  "names": {s: names.get(s, s) for s in adj},
+                  "stations": {s: {"name": names.get(s, s), "lat": stops[s]["lat"],
+                                   "lon": stops[s]["lon"], "lines": sorted(lines_at.get(s, []))}
+                               for s in station_ids if s in stops},
                   "patterns": [{"name": p["name"], "route": p["route"], "stations": p["stations"],
                                 "length_m": round(p["length_m"], 1)} for p in patterns]},
         "findings": findings,

@@ -28,7 +28,7 @@ _Snapshot from the November 2026 run. Every number is computed by the pipeline; 
 | **Fare enforcement** | With a $50 fine, deterring a rational evader takes inspection on **≥4.8% of trips**, about **15,400 checks every weekday** at gated stations. The MBTA reported **88 warnings and 0 citations** for all of 2025. |
 | **Inspection strategy** | Optimised, randomised deployment deters **54% more evasion** than staffing the busiest stations first at the same headcount. It wins in **every one of 30 sensitivity cases**. |
 
-| **Short-Hop distance fare** | Copley → Arlington (0.6 km) and Copley → Medford/Tufts (9.7 km) both cost $2.40 today. Under a distance fare where riding a whole line end to end costs $2.40 (MBTA track-distance data), they cost **$0.80** (minimum) and **$1.68**. No fare ever rises. To break even on revenue, the $0.80 trip needs 200% more paying riders and the $1.68 trip needs 43%, so it should be piloted first. |
+| **Short-Hop app** | Copley → Arlington and Copley → Medford/Tufts both cost $2.40 today. On Washington Metrorail's model, scaled so the maximum is today's $2.40, they cost **$0.80** and **$1.20**; no fare ever rises. To break even on revenue, the $0.80 trip needs 200% more paying riders and the $1.20 trip needs 100%, so it should be piloted first. |
 
 ### External validation
 
@@ -50,16 +50,29 @@ The MBTA reported that its Track Improvement Program saves riders about **2.4M m
    * Optimal proof-of-payment inspection rates (published research).
 
    Every citation is in [`docs/research_evidence.md`](docs/research_evidence.md). The playbook's figures are generated from the analysis at build time, so they cannot drift from the data.
-3. **Short-Hop, a distance-based fare designed for Boston.** Today a student riding one stop pays the same $2.40 as someone riding thirteen stops, which is exactly where skipping payment is most tempting. The rule: **riding a whole line from its first stop to its last costs today's $2.40, and shorter trips pay in proportion to real track distance** (MBTA Rapid Transit Stop Distances). The $0.80 minimum fare is one third of the cap, matching Washington Metrorail's min:max ratio ($2.25–$6.75); Hyderabad Metro's official 10-zone table (₹11 within 2 km up to ₹69 beyond 24 km, L&T Metro, May 2025) is included for comparison. The dashboard includes a working trip planner:
-   * Shortest paths over real track distances, covering branches and transfers.
-   * A tunable rule: whole line = $2.40 (your choice), or one uniform rate per km, plus the minimum fare.
-   * The revenue break-even condition (2.40/f − 1) for every trip.
+3. **Short-Hop: a working rider app that charges by distance, on Washington Metrorail's fare model.** Today a student riding one stop pays the same $2.40 as someone riding thirteen, which is exactly where skipping payment is most tempting. Short-Hop follows WMATA's official tariff (Tariff 49, effective July 1, 2026) and keeps every Washington ratio:
 
-   The design caps every fare at today's price, so it can only lower fares; this addresses the equity risk of pure distance pricing. A missing tap-out defaults to the flat fare, so gaming the system never pays.
+   | Rule | Washington | Short-Hop Boston |
+   |---|---|---|
+   | Base fare, first 3 composite miles | $2.25 | **$0.80** |
+   | Each extra composite mile (20% of base) | $0.45 | **$0.16** |
+   | Maximum (3 × base) | $6.75 | **$2.40**, today's fare |
+   | Nights after 9:30pm and weekends | $2.25–$2.50 | **$0.80–$0.90** |
+   | Reduced fare (students, seniors) | 50% | 50% |
+   | Missed tap-out | base fare | **$2.40** (MBTA gates check entry only) |
 
-   ![Short-Hop planner](docs/img/shorthop.jpg)
+   Composite miles are the average of track distance (MBTA Rapid Transit Stop Distances) and straight-line distance, and fares round up to $0.05. Copley → Arlington costs **$0.80**, Copley → Medford/Tufts **$1.20**, Alewife → Braintree the $2.40 maximum. No trip ever costs more than today.
 
-   **[▶ Watch the narrated 3D explainer](site/media/short-hop-explainer.mp4)** (voiceover, music and sound effects), rendered from code on the real Copley → Medford/Tufts route ([`video/`](video)).
+   **[▶ Open the Short-Hop app](https://deekshithkomira.github.io/mbta-transit-intelligence/app/)**, a mobile web app you can install on a phone ([`site/app/`](site/app)):
+   * **Trip:** pick stations and see the route on a map, plus the fare and every step of how it was calculated.
+   * **Ride:** tap in for a QR ticket with a live timer, then tap out where you get off; you pay for the distance you actually rode.
+   * **Wallet:** demo money only; choose regular or reduced fare (student, senior, income-eligible).
+   * **History:** your trips and savings versus the flat fare. **Fares:** the rules side by side with Washington's.
+   * The fare engine (`fare.js`) is tested against the Python engine for parity (`tests/app_fare.test.mjs`). A headless-browser end-to-end test rides a full trip (`tests/e2e_app.mjs`).
+
+   ![Short-Hop app](docs/img/app.jpg)
+
+   **[▶ Watch the narrated 3D explainer](site/media/short-hop-explainer.mp4)** (US English voiceover, music and sound effects), rendered from code on the real Copley → Medford/Tufts route ([`video/`](video)).
 4. **It's production-grade.**
    * Idempotent ingestion with a provenance manifest.
    * Row-count verification on every paged API pull.
@@ -107,7 +120,7 @@ flowchart LR
 | Which bus routes are worst? | **Beta-binomial empirical Bayes** with 90% credible intervals | Raw on-time rates over-rank routes with few observations |
 | How long do slow zones last? | **Kaplan-Meier** survival by line, still-open restrictions right-censored | Dropping open restrictions would bias lifetimes downward |
 | Do slow zones cost riders time? | OLS of excess minutes per trip on % track restricted, **line fixed effects**, HC1 errors | Controls for stable differences between lines. Reported as an association, not a causal effect |
-| What should a short trip cost? | Dijkstra over MBTA track distances; fare = $2.40 × distance ÷ full-line length, floored and capped; break-even growth 2.40/f − 1 | No origin–destination table is published, so the analysis states the condition a pilot must meet instead of inventing demand |
+| What should a short trip cost? | Dijkstra over MBTA track distances; WMATA composite miles and fare formula with Boston calibration; JS/Python parity tests; break-even growth 2.40/f − 1 | No origin–destination table is published, so the analysis states the condition a pilot must meet instead of inventing demand |
 | Where should inspectors stand? | Concave allocation, closed-form **water-filling**, randomised roster sampling, sensitivity grid | Diminishing returns are realistic, and randomisation stops evaders learning the schedule |
 
 ## Data quality log
