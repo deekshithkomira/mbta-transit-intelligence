@@ -3,8 +3,8 @@
 The problem
 -----------
 Every MBTA subway trip costs the same $2.40 (MBTA fares page; unchanged since 2019).
-One stop costs the same as thirteen, so the flat fare is the worst value exactly where
-walking, cycling or evading is most tempting.
+One stop costs the same as a whole line, so the flat fare is the worst value on the
+shortest trips.
 
 The rule
 --------

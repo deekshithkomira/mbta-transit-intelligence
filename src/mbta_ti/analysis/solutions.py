@@ -126,7 +126,7 @@ def run(r: dict) -> dict:
             "title": "Short-Hop: pay by distance — end to end of a line costs $2.40",
             "summary": f"Copley → Arlington costs the same ${sh['flat_fare']:.2f} as Copley → "
                        f"Medford/Tufts ({sh_far['rail_mi']:.1f} track miles), so the flat fare is "
-                       "worst value exactly where skipping payment is most tempting. Under Short-Hop, "
+                       "worst value on the shortest trips. Under Short-Hop, "
                        f"riding any line end to end costs ${sh['rules']['max']:.2f} and shorter trips pay "
                        f"in proportion: Copley → Medford/Tufts ${sh_far['fare']:.2f}, Copley → Arlington "
                        f"the ${sh['rules']['min']:.2f} minimum. No fare ever rises.",
@@ -136,6 +136,12 @@ def run(r: dict) -> dict:
                 "Washington Metrorail measures it), rounded up to $0.05.",
                 f"A missing tap-out is charged ${sh['rules']['missed_tap_out']:.2f} (MBTA gates validate "
                 "entry only, so skipping the exit tap must never be cheaper). Students and seniors pay half.",
+                "<b>Two-gate check: sneaking in is no longer enough. You would have to sneak out too.</b> "
+                "Phase 2 adds exit gates at gated stations that open only for a card or phone that "
+                f"tapped in. A rider who jumped the entry gate has no tap-in, so at the exit they pay "
+                f"${sh['rules']['missed_tap_out']:.2f} or evade a second time, in view of staff and cameras. "
+                "Emergency doors and ungated Green Line stops stay open, so this works alongside taller "
+                "gates and on-board checks, not instead of them.",
                 f"Pilot and test break-even: a ${sh_one['fare']:.2f} short trip needs "
                 f"{pct(sh_one['breakeven_growth'], 0)} more paying riders on it; Copley → "
                 f"Medford/Tufts at ${sh_far['fare']:.2f} needs {pct(sh_far['breakeven_growth'], 0)}.",

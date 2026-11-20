@@ -69,6 +69,8 @@ The MBTA reported that its Track Improvement Program saves riders about **2.4M m
 
    Reduced fares are half price. A missed tap-out costs $2.40, because MBTA gates check entry only. No trip ever costs more than today.
 
+   **Two-gate check: sneaking in is no longer enough. You would have to sneak out too.** In Phase 2, exit gates at gated stations open only for a card or phone that tapped in. A rider who jumped the entry gate has no tap-in, so at the exit they pay $2.40 or evade a second time, in view of staff and cameras. Emergency doors and ungated Green Line stops stay open, so this works alongside taller gates and on-board checks, not instead of them.
+
    **[▶ Open the Short-Hop app](https://deekshithkomira.github.io/mbta-transit-intelligence/app/)**, a complete mobile web app you can install on a phone, with no build step and no framework ([`site/app/`](site/app)):
    * **First launch:** splash screen, three intro slides, profile setup with rider type; new riders start at $0 and add money with a test card (no joining bonus).
    * **Home:** Short-Hop card and balance, quick actions, an active-trip banner, weekly fare-cap progress, saved routes, **live MBTA service alerts**, and recent trips.
