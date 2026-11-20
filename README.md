@@ -2,8 +2,6 @@
 
 **An end-to-end analytics platform on Boston's public transit system, built entirely from official MBTA open data, plus an evidence-based playbook for fare evasion and the other problems riders face.**
 
-[![ci](https://github.com/deekshithkomira/mbta-transit-intelligence/actions/workflows/ci.yml/badge.svg)](https://github.com/deekshithkomira/mbta-transit-intelligence/actions/workflows/ci.yml)
-[![refresh](https://github.com/deekshithkomira/mbta-transit-intelligence/actions/workflows/refresh.yml/badge.svg)](https://github.com/deekshithkomira/mbta-transit-intelligence/actions/workflows/refresh.yml)
 
 **Live dashboard → https://deekshithkomira.github.io/mbta-transit-intelligence/**
 
