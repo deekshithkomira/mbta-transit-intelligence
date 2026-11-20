@@ -98,13 +98,13 @@ await step("home", async () => {
   await sleep(1200); await scrollBy(420, 900); await sleep(900); await scrollBy(-420, 700);
 });
 await step("wallet", async () => {
-  await tap('[data-tab="wallet"]', 600);
-  await tap('[data-act="topup"]', 600);          // no card yet: add-card sheet first
-  await tap("[data-fill]", 500);
-  await tap('#addcard button[type="submit"]', 800);
-  await tap('[data-amt="20"]', 400);
-  await tap("[data-pay]", 1500);
-  await tap('[data-act="ar"]', 900);
+  await tap('[data-tab="wallet"]', 450);
+  await tap('[data-act="topup"]', 450);          // no card yet: add-card sheet first
+  await tap("[data-fill]", 300);
+  await tap('#addcard button[type="submit"]', 550);
+  await tap('[data-amt="20"]', 300);
+  await tap("[data-pay]", 900);
+  await tap('[data-act="ar"]', 500);
 });
 await step("plan", async () => {
   await tap('[data-tab="plan"]', 600);            // a new rider's default trip: Copley -> Arlington
@@ -116,7 +116,7 @@ await step("plan", async () => {
 await step("tapin", async () => { await tap('[data-act="tapin"]', 1800); });
 await step("tapout", async () => {
   await tap('[data-act="out"]', 400); await pick("Arlington");
-  await page.waitForSelector(".receipt"); await sleep(1600);
+  await page.waitForSelector(".receipt"); await sleep(1000);
   await tap(".sheet [data-close]", 500);
 });
 await step("activity", async () => { await tap('[data-tab="activity"]', 600); await sleep(800); await scrollBy(300, 800); });

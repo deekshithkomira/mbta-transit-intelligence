@@ -267,7 +267,7 @@ function overlay(t) {
   $("btn").textContent = t > 33.4 ? "✓ Tapped in at Copley" : "Tap in to ride";
   $("btn").style.background = t > 33.4 ? "#3ecf8e" : "#ffc72c";
   [...document.querySelectorAll(".card")].forEach((c, i) => {
-    const o = fade(t, 49.2 + i * 0.5, 54.2);
+    const o = fade(t, i < 3 ? 49.2 + i * 0.5 : 52.1, 54.2);
     c.style.opacity = o; c.style.transform = `translateY(${(1 - o) * 30}px)`;
   });
   $("cards").style.display = t > 48.8 && t < 54.6 ? "grid" : "none";

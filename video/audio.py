@@ -29,7 +29,7 @@ SR = 48_000
 HERE = Path(__file__).parent
 
 # Authored scene boundaries (seconds on the 58 s design timeline).
-BOUNDS = [0, 6, 14, 22, 30, 41.2, 49, 54.4, 58]
+BOUNDS = [0, 6, 14, 22, 30, 41.2, 49, 52, 54.4, 58]
 LINES = [
     "In Boston, one subway stop or twenty four stops costs exactly the same. "
     "Two dollars and forty cents.",
@@ -46,14 +46,19 @@ LINES = [
     "Add exit gates, and sneaking in is no longer enough. With no tap-in, the exit gate won't open, "
     "so you'd have to sneak out too. Skip the tap-out, and you pay the full two forty. "
     "Washington's Metro already works this way.",
+    "But most Green Line street stops have no gates, and gates in the road would only back up traffic. "
+    "So every door becomes the checkpoint. Tap at the door to board, and tap again to get down. "
+    "Passenger counters show where riders skip paying, and inspectors go there. "
+    "And at eighty cents, it takes a third as many checks to make skipping a bad bet.",
     "Pay by distance. Never more than today.",
 ]
 # Words the synthesiser mispronounces, given as Apple phonemes: Copley = KOP-lee.
 PRONOUNCE = {"Copley": "[[inpt PHON]]k1AApliy[[inpt TEXT]]"}
 # ElevenLabs premade voice "Brian": deep, clear US-English narrator.
 DEFAULT_ELEVEN_VOICE = "nPczCjzI2devNBz1zQrb"
-LEAD = 0.5      # silence before each line inside its scene
-TAIL = 0.9      # breathing room after each line
+LEAD = 0.3      # silence before each line inside its scene
+TAIL = 0.45     # breathing room after each line
+MIN_SCALE = 0.7  # a scene with less narration than animation plays faster, down to 70%, so no long silences
 
 
 def _to_samples(src: Path) -> np.ndarray:
@@ -123,7 +128,7 @@ def build_timing(durs: list[float]) -> tuple[list[list[float]], list[float]]:
         authored = BOUNDS[i + 1] - BOUNDS[i]
         need = durs[i] + LEAD + TAIL
         starts.append(real + LEAD)
-        real += max(authored, need)
+        real += max(authored * MIN_SCALE, need)
         knots.append([round(real, 3), BOUNDS[i + 1]])
     return knots, starts
 

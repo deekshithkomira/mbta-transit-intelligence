@@ -29,7 +29,7 @@ BOLD = 1   # HelveticaNeue.ttc face index for Bold
 steps = json.loads((HERE / "steps.json").read_text())["steps"]
 timeline = json.loads((HERE / "timeline.json").read_text())
 frames = json.loads((HERE / "frames.json").read_text())
-END_HOLD = 3.2
+END_HOLD = 2.2
 total = max(timeline[s["key"]] for s in steps) + (steps[-1]["end"] - steps[-1]["start"]) + END_HOLD
 
 
@@ -89,16 +89,18 @@ def caption_layer(i: int) -> Image.Image:
 def end_card() -> Image.Image:
     im = BG.copy()
     d = ImageDraw.Draw(im)
-    d.text((140, 250), "SHORT-HOP · A PROPOSAL FOR THE MBTA", font=font(30, BOLD), fill=YELLOW)
-    d.text((140, 310), "A fair fare for Boston", font=font(110, BOLD), fill=WHITE)
-    d.text((140, 480), "Whole line, end to end:", font=font(52), fill=MUTE)
-    d.text((760, 480), "$2.40", font=font(52, BOLD), fill=YELLOW)
-    d.text((140, 560), "One stop:", font=font(52), fill=MUTE)
-    d.text((760, 560), "$0.80", font=font(52, BOLD), fill=GREEN)
-    d.text((140, 640), "Every trip in between:", font=font(52), fill=MUTE)
-    d.text((760, 640), "priced by distance", font=font(52, BOLD), fill=WHITE)
-    d.text((140, 780), "If the MBTA and the City of Boston adopted this, every short trip", font=font(40), fill=WHITE)
-    d.text((140, 835), "would be fair, and far fewer people would have a reason to skip paying.", font=font(40), fill=WHITE)
+    d.text((140, 200), "SHORT-HOP · A PROPOSAL FOR THE MBTA", font=font(30, BOLD), fill=YELLOW)
+    d.text((140, 260), "A fair fare for Boston", font=font(110, BOLD), fill=WHITE)
+    d.text((140, 440), "Whole line, end to end:", font=font(52), fill=MUTE)
+    d.text((760, 440), "$2.40", font=font(52, BOLD), fill=YELLOW)
+    d.text((140, 535), "One stop:", font=font(52), fill=MUTE)
+    d.text((760, 535), "$0.80", font=font(52, BOLD), fill=GREEN)
+    d.text((140, 630), "Every trip in between:", font=font(52), fill=MUTE)
+    d.text((760, 630), "priced by distance", font=font(52, BOLD), fill=WHITE)
+    d.text((140, 720), "Green Line street stops:", font=font(52), fill=MUTE)
+    d.text((760, 720), "tap at every door, no gates in the road", font=font(52, BOLD), fill=WHITE)
+    d.text((140, 830), "If the MBTA and the City of Boston adopted this, every short trip", font=font(40), fill=WHITE)
+    d.text((140, 885), "would be fair, and far fewer people would have a reason to skip paying.", font=font(40), fill=WHITE)
     return im
 
 
