@@ -1,0 +1,86 @@
+{
+ "total": 50.529,
+ "steps": [
+  {
+   "key": "intro",
+   "title": "Short-Hop",
+   "sub": "Pay by distance on the MBTA",
+   "text": "This is Short-Hop, the transit app that charges by distance.",
+   "start": 0.0,
+   "voice_at": 0.35,
+   "end": 4.687
+  },
+  {
+   "key": "setup",
+   "title": "Set up in seconds",
+   "sub": "Name \u00b7 fare type \u00b7 starts at $0",
+   "text": "Setup takes seconds. Add your name and pick your fare type. There's no sign-up bonus. You start at zero.",
+   "start": 4.687,
+   "voice_at": 4.687,
+   "end": 11.574
+  },
+  {
+   "key": "home",
+   "title": "Home",
+   "sub": "Balance \u00b7 weekly fare cap \u00b7 live alerts",
+   "text": "Home shows your balance, your weekly fare cap, and live MBTA service alerts.",
+   "start": 11.574,
+   "voice_at": 11.574,
+   "end": 16.461
+  },
+  {
+   "key": "wallet",
+   "title": "Add money",
+   "sub": "Saved card \u00b7 auto-reload",
+   "text": "Add a card, top up your balance, and turn on auto-reload so you're never stuck at the gate.",
+   "start": 16.461,
+   "voice_at": 16.461,
+   "end": 22.062
+  },
+  {
+   "key": "plan",
+   "title": "Plan a trip",
+   "sub": "Copley to Arlington = $0.80",
+   "text": "Plan a trip. Copley to Arlington is one stop, about three percent of the line, so it's eighty cents, not two forty. Ride the whole line, and it's two forty, never more.",
+   "start": 22.062,
+   "voice_at": 22.062,
+   "end": 33.319
+  },
+  {
+   "key": "tapin",
+   "title": "Tap in",
+   "sub": "Your phone is the ticket",
+   "text": "Tap in, and your phone becomes the ticket. The QR code refreshes every thirty seconds.",
+   "start": 33.319,
+   "voice_at": 33.319,
+   "end": 39.325
+  },
+  {
+   "key": "tapout",
+   "title": "Tap out",
+   "sub": "Copley to Arlington = $0.80",
+   "text": "Tap out at Arlington, and you pay eighty cents. The fare follows the distance.",
+   "start": 39.325,
+   "voice_at": 39.325,
+   "end": 43.848
+  },
+  {
+   "key": "activity",
+   "title": "Activity",
+   "sub": "What you saved vs the flat fare",
+   "text": "Every trip shows what you saved compared with the flat fare.",
+   "start": 43.848,
+   "voice_at": 43.848,
+   "end": 47.225
+  },
+  {
+   "key": "outro",
+   "title": "Try it on your phone",
+   "sub": "deekshithkomira.github.io/mbta-transit-intelligence/app",
+   "text": "Try it on your phone. The link is in the post.",
+   "start": 47.225,
+   "voice_at": 47.225,
+   "end": 50.129
+  }
+ ]
+}

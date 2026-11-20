@@ -73,7 +73,7 @@ await click('#setup button[type="submit"]');
 await click(".welcome [data-go]");
 await page.waitForSelector(".sh-card");
 ok((await text(".top h1")) === "Alex", "home greets the rider by name");
-ok((await text("[data-balance]")) === "$10.00", "welcome credit of $10.00");
+ok((await text("[data-balance]")) === "$0.00", "no joining bonus: balance starts at $0.00");
 await page.waitForFunction(() => !document.querySelector("#alerts .skeleton"), { timeout: 15000 }).catch(() => {});
 await shot("04-home");
 
@@ -101,24 +101,10 @@ ok((await text("details.breakdown")).includes("Whole line"), "fare breakdown sho
 await page.waitForFunction(() => !document.querySelector("#deps .skeleton"), { timeout: 15000 }).catch(() => {});
 await shot("05-plan");
 
-// ---------------------------------------------------------------- ride
-await click('[data-act="tapin"]');
-await page.waitForSelector("#qr svg");
-ok(true, "tap in shows a QR ticket");
-ok((await text(".ticket")).includes("Medford/Tufts"), "ticket shows the planned destination");
-await shot("06-ticket");
-await click('[data-act="out"]'); await pick("Arlington");   // got off early
-await page.waitForSelector(".receipt");
-ok((await sheetText()).includes("$0.80"), "tapping out early at Arlington charges $0.80");
-await shot("07-receipt");
-await closeSheets();
-ok((await text("[data-balance]")) === "$9.20", "balance is $9.20 after the trip");
-ok((await text(".fav-list")).includes("Medford/Tufts"), "saved route appears on Home");
-
-// ---------------------------------------------------------------- wallet & cards
-await tab("wallet");
-await click('[data-act="topup"]');                  // no card yet -> add-card sheet first
-await page.waitForSelector("#addcard");
+// ---------------------------------------------------------------- add money (no balance yet)
+await click('[data-act="tapin"]');                 // $0 balance -> must add money first
+await page.waitForSelector("#addcard");             // no card yet -> add-card sheet first
+ok(true, "tapping in with $0 asks the rider to add money");
 await page.type('#addcard [name="number"]', "4111 1111 1111 1111");
 await page.type('#addcard [name="exp"]', "1230");
 await page.type('#addcard [name="cvc"]', "123");
@@ -133,8 +119,33 @@ await click('[data-amt="20"]');
 await shot("09-top-up");
 await click("[data-pay]");
 await page.waitForFunction(() => !document.querySelector("[data-pay]"), { timeout: 5000 });
-await page.waitForFunction(() => document.querySelector("[data-balance]")?.textContent === "$29.20");
-ok(true, "adding $20 makes the balance $29.20");
+await page.waitForFunction(() => JSON.parse(localStorage.getItem("shorthop.v2")).balance === 20, { timeout: 5000 });
+ok(true, "adding $20 makes the balance $20.00");
+
+// ---------------------------------------------------------------- ride
+await click('[data-act="tapin"]');
+await page.waitForSelector("#qr svg");
+ok(true, "tap in shows a QR ticket");
+ok((await text(".ticket")).includes("Medford/Tufts"), "ticket shows the planned destination");
+await shot("06-ticket");
+await click('[data-act="out"]'); await pick("Arlington");   // got off early
+await page.waitForSelector(".receipt");
+ok((await sheetText()).includes("$0.80"), "tapping out early at Arlington charges $0.80");
+await shot("07-receipt");
+await closeSheets();
+ok((await text("[data-balance]")) === "$19.20", "balance is $19.20 after the trip");
+ok((await text(".fav-list")).includes("Medford/Tufts"), "saved route appears on Home");
+
+// ---------------------------------------------------------------- wallet & cards
+await tab("wallet");
+await click('[data-act="topup"]');                  // card already saved -> straight to amounts
+await page.waitForSelector("[data-pay]");
+await click('[data-amt="10"]');
+await click("[data-pay]");
+await page.waitForFunction(() => !document.querySelector("[data-pay]"), { timeout: 5000 });
+await new Promise(r => setTimeout(r, 400));
+await page.waitForFunction(() => document.querySelector("[data-balance]")?.textContent === "$29.20", { timeout: 5000 });
+ok(true, "a second top-up of $10 makes the balance $29.20");
 ok((await text("main")).includes("Visa •••• 4242"), "saved card is listed");
 await click('[data-act="ar"]');
 await page.waitForSelector('[data-ar="threshold"]');

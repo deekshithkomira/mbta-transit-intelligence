@@ -8,3 +8,6 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 .DS_Store
+
+# post kit, not part of the project
+linkedin/

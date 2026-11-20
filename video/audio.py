@@ -31,16 +31,18 @@ HERE = Path(__file__).parent
 # Authored scene boundaries (seconds on the 58 s design timeline).
 BOUNDS = [0, 6, 14, 22, 30, 41.2, 49, 54.4, 58]
 LINES = [
-    "In Boston, one subway stop or thirteen stops costs exactly the same. "
+    "In Boston, one subway stop or twenty four stops costs exactly the same. "
     "Two dollars and forty cents.",
-    "Copley to Arlington is just one stop, and it still costs the full two forty.",
-    "Copley to Medford Tufts is thirteen stops, six miles of track. The same two forty.",
+    "Heath Street to Medford Tufts is the whole Green Line E, about seven miles. "
+    "Two forty is a fair price for that.",
+    "But Copley to Arlington is just one stop, less than half a mile, and it costs the same two forty. "
+    "That doesn't make sense.",
     "So for a short hop, the fare is the worst deal on the system. That's where students "
     "jump the gate, or slip through behind someone who paid.",
     "Short-Hop fixes the price, not just the gate. Tap in at Copley, tap out at Arlington, "
     "and pay eighty cents.",
-    "Here's the rule. Ride a line from one end to the other, and you pay two forty. Ride less, "
-    "and you pay less. Copley to Medford Tufts is about three quarters of the line, so it costs one eighty.",
+    "Here's the rule. The fare follows the distance. Ride the whole line, and you pay two forty. "
+    "Ride one stop, and you pay eighty cents. Every trip in between is priced by the miles you ride.",
     "Forget to tap out, and you're charged the full two forty, so cheating never pays. "
     "Washington's Metro already charges by distance, the same way.",
     "Pay by distance. Never more than today.",
@@ -279,8 +281,9 @@ def main() -> None:
     place(sfx, ding(), R(31.2), 0.30)                         # app shows the fare
     place(sfx, beep_ok(), R(33.4), 0.40)                      # tap in accepted
     route = json.loads((HERE / "route.json").read_text())
-    for i, st in enumerate(route["stations"][1:]):            # fare-ladder bars rising
-        place(sfx, pluck(440 * (1 + st["fare"] / 2.4)), R(42 + i * 0.35), 0.25)
+    after = route["stations"][1:]                             # fare-ladder bars rising (from Heath Street)
+    for i, st in enumerate(after):
+        place(sfx, pluck(440 * (1 + st["fare"] / 2.4)), R(42 + i * 0.2), 0.25)
 
     # Voice activity (smoothed); cues and music are silenced while anyone is speaking.
     win = int(.12 * SR)

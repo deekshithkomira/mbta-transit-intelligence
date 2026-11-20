@@ -5,3 +5,11 @@ preview-*.jpg
 audio.wav
 .env
 .tts_cache/
+
+# app walkthrough build outputs
+demo/frames/
+demo/*.mp4
+demo/*.wav
+demo/*.srt
+demo/frames.json
+*.srt

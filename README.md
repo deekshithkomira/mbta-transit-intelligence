@@ -70,7 +70,7 @@ The MBTA reported that its Track Improvement Program saves riders about **2.4M m
    Reduced fares are half price. A missed tap-out costs $2.40, because MBTA gates check entry only. No trip ever costs more than today.
 
    **[▶ Open the Short-Hop app](https://deekshithkomira.github.io/mbta-transit-intelligence/app/)**, a complete mobile web app you can install on a phone, with no build step and no framework ([`site/app/`](site/app)):
-   * **First launch:** splash screen, three intro slides, profile setup with rider type, and demo welcome credit.
+   * **First launch:** splash screen, three intro slides, profile setup with rider type; new riders start at $0 and add money with a test card (no joining bonus).
    * **Home:** Short-Hop card and balance, quick actions, an active-trip banner, weekly fare-cap progress, saved routes, **live MBTA service alerts**, and recent trips.
    * **Plan:** searchable station picker (recent stations, "use my location"), fare quote showing your share of the whole line, route map, **live departures** from the MBTA V3 API, and saved routes.
    * **Ticket:** QR ticket that rotates every 30 s (screenshots can't be reused), live trip timer, tap out anywhere, receipts, and "Report a problem".

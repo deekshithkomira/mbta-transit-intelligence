@@ -49,6 +49,7 @@ const lat0 = route.stations[0].lat, lon0 = route.stations[0].lon, K = 1100;
 const proj = s => new THREE.Vector3((s.lon - lon0) * Math.cos(lat0 * Math.PI / 180) * K, 0,
   -(s.lat - lat0) * K);
 const pts = route.stations.map(proj);
+const C = route.copley ?? 0;          // index of Copley (route starts at Heath Street)
 // centre the route
 const centre = pts.reduce((a, p) => a.add(p), new THREE.Vector3()).multiplyScalar(1 / pts.length);
 pts.forEach(p => p.sub(centre));
@@ -108,6 +109,7 @@ pts.forEach((p, i) => {
   ring.position.copy(p).setY(0.55);
   stationGroup.add(ring);
   const lb = label(route.stations[i].name, { size: 40 });
+  lb.userData.quiet = i > 0 && i < C;   // in-between E-branch stops stay unlabelled
   lb.position.copy(p).add(new THREE.Vector3(0, 3.2, 0));
   lb.scale.multiplyScalar(1.25);
   stationGroup.add(lb);
@@ -138,7 +140,8 @@ function placeTrain(u) {
 // price tag that rides above the train
 const tagFlat = label("$2.40", { size: 64, color: "#111", bg: "#ff5d5d", bold: 900 });
 const tagHop = label("$0.80", { size: 64, color: "#0b1f14", bg: "#3ecf8e", bold: 900 });
-[tagFlat, tagHop].forEach(t => { t.scale.multiplyScalar(2.3); scene.add(t); });
+const tagLine = label("$2.40 · whole line", { size: 64, color: "#111", bg: "#ffc72c", bold: 900 });
+[tagFlat, tagHop, tagLine].forEach(t => { t.scale.multiplyScalar(2.3); scene.add(t); });
 
 // ---------------------------------------------------------------- fare gate + rider
 const gate = new THREE.Group();
@@ -160,7 +163,7 @@ const paddles = [-0.8, 0.8].map(x => {
   gate.add(pv); return pv;
 });
 // gate sits beside Copley, on a concourse slab
-const gateBase = pts[0].clone().add(new THREE.Vector3(-9, 0, 6));
+const gateBase = pts[C].clone().add(new THREE.Vector3(-9, 0, 6));
 gate.position.copy(gateBase);
 gate.rotation.y = Math.PI / 2;
 scene.add(gate);
@@ -194,46 +197,49 @@ scene.add(tapIn);
 const gatePoint = (along, side = 0) => gateBase.clone().add(new THREE.Vector3(along, 0, side));
 
 // ---------------------------------------------------------------- fare ladder bars
+const LABELLED = new Set([1, 6, 11, 16, 20, pts.length - 1]);
 const bars = pts.map((p, i) => {
   if (i === 0) return null;
   const f = route.stations[i].fare;
   const capped = f <= route.floor;
-  const m = new THREE.Mesh(new THREE.BoxGeometry(1.4, 1, 1.4), new THREE.MeshStandardMaterial({
+  const m = new THREE.Mesh(new THREE.BoxGeometry(1.8, 1, 1.8), new THREE.MeshStandardMaterial({
     color: capped ? 0x3ecf8e : 0xffc72c, emissive: capped ? 0x0d3b26 : 0x6b4e00, emissiveIntensity: .5,
     roughness: .4, transparent: true, opacity: 1 }));
-  m.position.copy(p).add(new THREE.Vector3(2.2, 0, 0));
+  m.position.copy(p).add(new THREE.Vector3(2.4, 0, 0));
   m.castShadow = true;
   scene.add(m);
   const lb = label("$" + f.toFixed(2), { size: 46, color: "#111", bg: capped ? "#3ecf8e" : "#ffc72c", bold: 900 });
-  lb.scale.multiplyScalar(1.5);
+  lb.scale.multiplyScalar(2.6);
+  lb.userData.show = LABELLED.has(i);
   scene.add(lb);
   return { m, lb, f, p };
 }).filter(Boolean);
-const BAR_K = 4.2; // world units per dollar
+const BAR_K = 5.2; // world units per dollar
 
 // ---------------------------------------------------------------- camera keys
 // [time, position, lookAt]
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
-const P0 = pts[0], P1 = pts[1], PN = pts[pts.length - 1];
-const mid = pts[Math.floor(pts.length / 2)];
+const P0 = pts[C], P1 = pts[C + 1], PN = pts[pts.length - 1];
+const mid = pts[Math.floor((C + pts.length - 1) / 2)];   // middle of Copley -> Medford/Tufts
+const all = V(0, 0, 0);                                   // middle of the whole line
 const camKeys = [
-  [0, V(mid.x + 40, 95, mid.z + 75), mid],
-  [5, V(mid.x + 20, 70, mid.z + 55), mid],
-  [6.5, V(P0.x + 14, 14, P0.z + 18), P0.clone().lerp(P1, .5)],
-  [12.5, V(P1.x + 10, 12, P1.z + 16), P0.clone().lerp(P1, .6)],
-  [14.5, V(mid.x + 34, 62, mid.z + 52), mid],
-  [21, V(mid.x + 26, 55, mid.z + 44), mid],
+  [0, V(all.x + 45, 120, all.z + 95), all],
+  [5, V(all.x + 40, 112, all.z + 88), all],
+  [6.5, V(all.x + 74, 50, all.z + 6), all.clone().add(V(0, -14, 0))],
+  [12.5, V(all.x + 68, 46, all.z - 4), all.clone().add(V(0, -14, 0))],
+  [14.5, V(P0.x + 14, 14, P0.z + 18), P0.clone().lerp(P1, .5)],
+  [21, V(P1.x + 10, 12, P1.z + 16), P0.clone().lerp(P1, .6)],
   [22.5, gatePoint(4, 11).setY(6.5), gatePoint(0, 0).setY(1.2)],
   [29, gatePoint(2.5, 9).setY(5), gatePoint(0, 0).setY(1.2)],
   [30.5, gatePoint(5, 10).setY(6), gatePoint(0, 0).setY(1.2)],
   [35, gatePoint(3, 8).setY(5), gatePoint(0, 0).setY(1.2)],
   [36.5, V(P0.x + 12, 13, P0.z + 16), P0.clone().lerp(P1, .5)],
   [40, V(P1.x + 10, 12, P1.z + 15), P0.clone().lerp(P1, .7)],
-  [41.5, V(mid.x + 62, 26, mid.z + 14), mid.clone().add(V(0, 4, -2))],
-  [45.5, V(mid.x + 56, 23, mid.z + 10), mid.clone().add(V(0, 4, -2))],
-  [48.5, V(mid.x + 50, 34, mid.z + 18), mid.clone().add(V(0, 4, -2))],
-  [49.5, V(mid.x + 40, 85, mid.z + 70), mid],
-  [58, V(mid.x + 10, 110, mid.z + 60), mid],
+  [41.6, V(all.x + 82, 38, all.z + 6), all.clone().add(V(0, -12, 0))],
+  [45.5, V(all.x + 80, 38, all.z + 2), all.clone().add(V(0, -12, 0))],
+  [48.8, V(all.x + 78, 40, all.z - 2), all.clone().add(V(0, -12, 0))],
+  [49.6, V(all.x + 45, 115, all.z + 90), all],
+  [58, V(all.x + 15, 135, all.z + 80), all],
 ];
 function cameraAt(t) {
   let i = 0;
@@ -274,24 +280,26 @@ function renderAt(T) {
   cameraAt(t);
 
   // ---- train
-  let u = stationU[0];
+  const U0 = stationU[C], U1 = stationU[C + 1], UN = stationU.at(-1);
+  let u = U0;
   let tagVisible = null;
-  if (t < 6.5) u = stationU[0];
-  else if (t < 13) { u = stationU[0] + (stationU[1] - stationU[0]) * easeInOut(seg(t, 7.5, 12)); tagVisible = tagFlat; }
-  else if (t < 14) u = stationU[0];
-  else if (t < 21.5) { u = stationU[0] + (stationU.at(-1) - stationU[0]) * easeInOut(seg(t, 14.6, 20.6)); tagVisible = tagFlat; }
-  else if (t < 36.5) u = stationU[0];
-  else if (t < 41) { u = stationU[0] + (stationU[1] - stationU[0]) * easeInOut(seg(t, 37, 40)); tagVisible = tagHop; }
-  else u = stationU[1];
+  const UA = stationU[0];
+  if (t < 6.5) u = UA;
+  else if (t < 13.6) { u = UA + (UN - UA) * easeInOut(seg(t, 7, 12.8)); tagVisible = tagLine; }
+  else if (t < 14.5) u = U0;
+  else if (t < 21.5) { u = U0 + (U1 - U0) * easeInOut(seg(t, 15.5, 20)); tagVisible = tagFlat; }
+  else if (t < 36.5) u = U0;
+  else if (t < 41) { u = U0 + (U1 - U0) * easeInOut(seg(t, 37, 40)); tagVisible = tagHop; }
+  else u = U1;
   placeTrain(u);
-  [tagFlat, tagHop].forEach(tg => {
+  [tagFlat, tagHop, tagLine].forEach(tg => {
     tg.visible = tg === tagVisible;
-    tg.position.copy(train.position).add(new THREE.Vector3(-1.7, 5.2, 0));
+    tg.position.copy(train.position).add(new THREE.Vector3(-1.7, tg === tagLine ? 9 : 5.2, 0));
   });
   tagFlat.material.opacity = 1;
 
   // ---- station labels hide during gate close-ups
-  stationLabels.forEach(l => { l.material.opacity = t > 22 && t < 36 ? 0 : 1; });
+  stationLabels.forEach(l => { l.material.opacity = (t > 22 && t < 36) || (t > 41.5 && t < 49.4) || l.userData.quiet ? 0 : 1; });
 
   // ---- gate scene
   const inGate = t > 21.8 && t < 36.2;
@@ -330,10 +338,10 @@ function renderAt(T) {
 
   // ---- fare ladder
   bars.forEach((b, i) => {
-    const g = ease(seg(t, 42 + i * 0.35, 42.8 + i * 0.35));
+    const g = ease(seg(t, 42 + i * 0.2, 42.7 + i * 0.2));
     const show = t > 41.5 && t < 49.4;
     const h = Math.max(0.001, b.f * BAR_K * g);
-    b.m.visible = b.lb.visible = show;
+    b.m.visible = show; b.lb.visible = show && b.lb.userData.show;
     b.m.scale.y = h;
     b.m.position.y = h / 2;
     b.lb.position.copy(b.m.position).setY(h + 1.4);
