@@ -43,8 +43,9 @@ LINES = [
     "and pay eighty cents.",
     "Here's the rule. The fare follows the distance. Ride the whole line, and you pay two forty. "
     "Ride one stop, and you pay eighty cents. Every trip in between is priced by the miles you ride.",
-    "Forget to tap out, and you're charged the full two forty, so cheating never pays. "
-    "Washington's Metro already charges by distance, the same way.",
+    "Add exit gates, and sneaking in is no longer enough. With no tap-in, the exit gate won't open, "
+    "so you'd have to sneak out too. Skip the tap-out, and you pay the full two forty. "
+    "Washington's Metro already works this way.",
     "Pay by distance. Never more than today.",
 ]
 # Words the synthesiser mispronounces, given as Apple phonemes: Copley = KOP-lee.
