@@ -50,7 +50,7 @@ The MBTA reported that its Track Improvement Program saves riders about **2.4M m
    * Optimal proof-of-payment inspection rates (published research).
 
    Every citation is in [`docs/research_evidence.md`](docs/research_evidence.md). The playbook's figures are generated from the analysis at build time, so they cannot drift from the data.
-3. **Short-Hop: a working rider app that charges by distance.** Today a student riding one stop pays the same $2.40 as someone riding thirteen, which is exactly where skipping payment is most tempting. The rule: **riding a line from its first stop to its last costs $2.40, and every shorter trip pays in proportion to the distance travelled.**
+3. **Short-Hop: a working rider app that charges by distance.** Today anyone riding one stop pays the same $2.40 as someone riding the whole line. The rule: **riding a line from its first stop to its last costs $2.40, and every shorter trip pays in proportion to the distance travelled.**
 
    **fare = $2.40 × (your distance ÷ the whole line's distance)**, rounded up to $0.05, minimum $0.80
 

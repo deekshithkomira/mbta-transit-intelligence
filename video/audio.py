@@ -37,8 +37,8 @@ LINES = [
     "Two forty is a fair price for that.",
     "But Copley to Arlington is just one stop, less than half a mile, and it costs the same two forty. "
     "That doesn't make sense.",
-    "So for a short hop, the fare is the worst deal on the system. That's where students "
-    "jump the gate, or slip through behind someone who paid.",
+    "Anyone riding just one stop pays the full two forty. It's the worst deal on the system. "
+    "And every day, some riders jump the gate, or slip through behind someone who paid.",
     "Short-Hop fixes the price, not just the gate. Tap in at Copley, tap out at Arlington, "
     "and pay eighty cents.",
     "Here's the rule. The fare follows the distance. Ride the whole line, and you pay two forty. "

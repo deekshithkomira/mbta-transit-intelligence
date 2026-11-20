@@ -184,7 +184,7 @@ function person(color) {
   scene.add(g);
   return g;
 }
-const student = person(0x2f6fe0);
+const rider = person(0x2f6fe0);
 const payer = person(0xb45309);
 const thought = label("$2.40 for ONE stop?!", { size: 52, color: "#111", bg: "#ffc72c", bold: 900 });
 thought.scale.multiplyScalar(1.6);
@@ -303,12 +303,12 @@ function renderAt(T) {
 
   // ---- gate scene
   const inGate = t > 21.8 && t < 36.2;
-  [gate, slab, student, payer].forEach(o => { o.visible = inGate; });
+  [gate, slab, rider, payer].forEach(o => { o.visible = inGate; });
   thought.visible = inGate && t > 23.2 && t < 26.4;
   tapIn.visible = inGate && t > 33.4 && t < 35.6;
   let open = 0;
   if (inGate && t < 30) {
-    // paying rider taps, gate opens; student tailgates/jumps
+    // paying rider taps, gate opens; rider tailgates or jumps
     const pw = seg(t, 22.4, 26.8);
     payer.position.copy(gatePoint(-4 + 8 * pw, 0.4));
     payer.rotation.y = 0;
@@ -316,24 +316,24 @@ function renderAt(T) {
     const sw = seg(t, 22.4, 25.8);
     const jump = seg(t, 25.8, 26.8);
     const sx = t < 25.8 ? -5.5 + 4.2 * ease(sw) : -1.3 + 4.6 * ease(jump);
-    student.position.copy(gatePoint(sx, -0.9));
-    student.position.y = Math.sin(Math.PI * jump) * 1.9;
-    student.rotation.z = -Math.sin(Math.PI * jump) * 0.5;
-    student.rotation.y = 0;
+    rider.position.copy(gatePoint(sx, -0.9));
+    rider.position.y = Math.sin(Math.PI * jump) * 1.9;
+    rider.rotation.z = -Math.sin(Math.PI * jump) * 0.5;
+    rider.rotation.y = 0;
     lightMat.color.set(0xff3b3b); lightMat.emissive.set(0xff3b3b);
   } else if (inGate) {
-    // Short-Hop: student books, taps in, gate opens for them
+    // Short-Hop: rider books, taps in, gate opens for them
     payer.visible = false;
     const sw = seg(t, 30.6, 33.4), walk = seg(t, 33.6, 35.6);
-    student.position.copy(gatePoint(t < 33.4 ? -5 + 3.6 * ease(sw) : -1.4 + 6 * ease(walk), 0));
-    student.position.y = 0; student.rotation.z = 0;
+    rider.position.copy(gatePoint(t < 33.4 ? -5 + 3.6 * ease(sw) : -1.4 + 6 * ease(walk), 0));
+    rider.position.y = 0; rider.rotation.z = 0;
     open = ease(seg(t, 33.4, 33.9));
     const ok = t > 33.4;
     lightMat.color.set(ok ? 0x3ecf8e : 0xff3b3b); lightMat.emissive.set(ok ? 0x3ecf8e : 0xff3b3b);
   }
-  student.position.y += inGate ? Math.abs(Math.sin(t * 9)) * 0.05 : 0;
+  rider.position.y += inGate ? Math.abs(Math.sin(t * 9)) * 0.05 : 0;
   paddles.forEach(p => { p.rotation.y = p.userData.side * open * 1.35; });
-  thought.position.copy(student.position).setY(3.4);
+  thought.position.copy(rider.position).setY(3.4);
   tapIn.position.copy(gatePoint(0, 0)).add(new THREE.Vector3(0, 3.3, 0));
 
   // ---- fare ladder
