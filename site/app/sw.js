@@ -1,6 +1,9 @@
 // Offline support: cache the app shell; refresh network data when online.
-const CACHE = "shorthop-v1";
-const SHELL = ["./", "index.html", "app.css", "main.js", "fare.js", "data/network.json",
+const CACHE = "shorthop-v2";
+const SHELL = ["./", "index.html", "css/app.css", "fare.js", "data/network.json",
+  "js/main.js", "js/store.js", "js/ui.js", "js/data.js", "js/live.js", "js/ride.js",
+  "js/views/onboarding.js", "js/views/home.js", "js/views/plan.js", "js/views/ticket.js",
+  "js/views/wallet.js", "js/views/activity.js", "js/views/account.js",
   "manifest.webmanifest", "icons/icon-192.png", "../vendor/leaflet.js", "../vendor/leaflet.css",
   "../vendor/qrcode.js"];
 self.addEventListener("install", e => e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())));

@@ -63,12 +63,16 @@ The MBTA reported that its Track Improvement Program saves riders about **2.4M m
 
    Composite miles are the average of track distance (MBTA Rapid Transit Stop Distances) and straight-line distance, and fares round up to $0.05. Copley → Arlington costs **$0.80**, Copley → Medford/Tufts **$1.20**, Alewife → Braintree the $2.40 maximum. No trip ever costs more than today.
 
-   **[▶ Open the Short-Hop app](https://deekshithkomira.github.io/mbta-transit-intelligence/app/)**, a mobile web app you can install on a phone ([`site/app/`](site/app)):
-   * **Trip:** pick stations and see the route on a map, plus the fare and every step of how it was calculated.
-   * **Ride:** tap in for a QR ticket with a live timer, then tap out where you get off; you pay for the distance you actually rode.
-   * **Wallet:** demo money only; choose regular or reduced fare (student, senior, income-eligible).
-   * **History:** your trips and savings versus the flat fare. **Fares:** the rules side by side with Washington's.
-   * The fare engine (`fare.js`) is tested against the Python engine for parity (`tests/app_fare.test.mjs`). A headless-browser end-to-end test rides a full trip (`tests/e2e_app.mjs`).
+   **[▶ Open the Short-Hop app](https://deekshithkomira.github.io/mbta-transit-intelligence/app/)**, a complete mobile web app you can install on a phone, with no build step and no framework ([`site/app/`](site/app)):
+   * **First launch:** splash screen, three intro slides, profile setup with rider type, and demo welcome credit.
+   * **Home:** Short-Hop card and balance, quick actions, an active-trip banner, weekly fare-cap progress, saved routes, **live MBTA service alerts**, and recent trips.
+   * **Plan:** searchable station picker (recent stations, "use my location"), fare quote with a full breakdown, route map, **live departures** from the MBTA V3 API, peak and night pricing, and saved routes.
+   * **Ticket:** QR ticket that rotates every 30 s (screenshots can't be reused), live trip timer, tap out anywhere, receipts, and "Report a problem".
+   * **Wallet:** add money, saved cards (published test cards only, so real card numbers are refused), default card, auto-reload, the weekly fare cap at the 7-day LinkPass price ($22.50), and transaction history.
+   * **Activity:** monthly totals, a 14-day chart of what you paid versus the flat fare, filters, and CSV export.
+   * **Account:** profile, reduced-fare eligibility, notification settings, dark mode, larger text, reduced motion, fare rules versus Washington, help and FAQ, privacy (export or delete your data), and about.
+   * **Built to work offline and accessibly:** service worker, installable manifest, keyboard and screen-reader support, and live data that's throttled and cached under the MBTA's rate limit.
+   * **Tested:** JS/Python fare-engine parity and wallet unit tests (`tests/*.test.mjs`), plus a 38-step headless end-to-end test of every module (`tests/e2e_app.mjs`).
 
    ![Short-Hop app](docs/img/app.jpg)
 
