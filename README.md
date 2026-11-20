@@ -72,7 +72,7 @@ The MBTA reported that its Track Improvement Program saves riders about **2.4M m
 
    ![Short-Hop app](docs/img/app.jpg)
 
-   **[▶ Watch the narrated 3D explainer](site/media/short-hop-explainer.mp4)** (US English voiceover, music and sound effects), rendered from code on the real Copley → Medford/Tufts route ([`video/`](video)).
+   **[▶ Watch the narrated 3D explainer](site/media/short-hop-explainer.mp4)** (ElevenLabs US-English voiceover, clean mix), rendered from code on the real Copley → Medford/Tufts route ([`video/`](video)).
 4. **It's production-grade.**
    * Idempotent ingestion with a provenance manifest.
    * Row-count verification on every paged API pull.

@@ -17,9 +17,9 @@ Stations sit at their real coordinates (MBTA V3 API), distances come from the MB
 
 `audio.py` builds the soundtrack:
 
-* **Narration:** generated with macOS `say` in US English (voice "Samantha"; change with `--voice`). "Copley" is given as phonemes so it is pronounced KOP-lee.
-* **Music:** a synthesised background bed that ducks under the voice.
-* **Sound effects:** the train passing, a gate beep, a fare-evasion alarm, a price chime, and the fare-ladder bars rising.
+* **Narration:** ElevenLabs text-to-speech (US-English narrator "Brian", Turbo v2 model). "Copley" is passed as phonemes (K AA1 P L IY0) so it is always pronounced KOP-lee. The API key is read from `video/.env`, which is git-ignored (template: `.env.example`). Generated lines are cached, so re-renders use no extra credits. Offline fallback: `--tts say`.
+* **Clean mix:** voice only while speaking, with no music or effects underneath; pauses are digital silence (optional music bed: `--music 0.2`).
+* **Cues:** a soft gate beep, a price chime and the fare-ladder plucks, placed only in pauses.
 
 It also writes `timing.json`, which stretches any scene whose narration needs more time, so the picture and voice stay in sync.
 
@@ -28,9 +28,9 @@ It also writes `timing.json`, which stretches any scene whose narration needs mo
 ```bash
 cd video
 npm install
-../.venv/bin/python audio.py                      # narration + music + effects -> audio.wav, timing.json
+../.venv/bin/python audio.py --tts elevenlabs      # narration + cues -> audio.wav, timing.json
 node render.mjs --out short-hop-explainer.mp4     # 1920x1080 @ 30 fps, audio muxed in
 node render.mjs --preview 12,30,52                # still frames at chosen seconds
 ```
 
-Requirements: macOS (for `say`), Node 18+, Google Chrome and ffmpeg.
+Requirements: an ElevenLabs API key with Text to Speech access (or macOS `say`), Node 18+, Google Chrome and ffmpeg.
