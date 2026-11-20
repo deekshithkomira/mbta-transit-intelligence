@@ -46,9 +46,9 @@ export function render(root, ctx) {
   root.querySelectorAll("[data-f]").forEach(b => (b.onclick = () => { filter = b.dataset.f; ctx.refresh(); }));
   root.querySelectorAll("[data-trip]").forEach(b => (b.onclick = () => ctx.openTrip(b.dataset.trip)));
   root.querySelector('[data-act="csv"]').onclick = () => {
-    const rows = [["ticket", "date", "from", "to", "status", "composite_miles", "distance_fare", "charged", "saved_vs_flat", "cap_applied", "period"],
+    const rows = [["ticket", "date", "from", "to", "status", "composite_miles", "distance_fare", "charged", "saved_vs_flat", "cap_applied"],
       ...st.trips.map(t => [t.id, new Date(t.at).toISOString(), stationName(t.from), t.to ? stationName(t.to) : "", t.status,
-        (t.compositeMi || 0).toFixed(2), t.fare.toFixed(2), t.charged.toFixed(2), t.saving.toFixed(2), t.capApplied, t.period])];
+        (t.compositeMi || 0).toFixed(2), t.fare.toFixed(2), t.charged.toFixed(2), t.saving.toFixed(2), t.capApplied])];
     download("short-hop-trips.csv", rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n"), "text/csv");
   };
 }

@@ -1,25 +1,24 @@
-import { periodFor } from "../../fare.js";
 import { R, ST, net, stationName } from "../data.js";
 import * as live from "../live.js";
 import { quoteFor, tapIn } from "../ride.js";
 import * as S from "../store.js";
 import { LINE_COLOR, esc, icon, lineDots, money, pickStation, routeLine, toast } from "../ui.js";
 
-export const periodLabel = p => (p === "offpeak" ? "Night & weekend" : "Peak");
-
 export function breakdown(q, reducedLabel) {
-  const capNote = q.period === "offpeak" ? `Night & weekend cap ${money(R.offpeak_max)}` : `Cap ${money(R.max)} (today's fare)`;
+  const pct = Math.round(q.share * 100);
   return `<details class="breakdown"><summary>How this fare is calculated ${icon("chevron")}</summary>
     <div class="rows">
       <div class="row"><span>Track distance</span><span>${q.railMi.toFixed(2)} mi</span></div>
       <div class="row"><span>Straight-line distance</span><span>${q.straightMi.toFixed(2)} mi</span></div>
-      <div class="row"><span>Composite miles (average)</span><span>${q.compositeMi.toFixed(2)} mi</span></div>
-      <div class="row"><span>Base fare · first ${R.base_miles} mi</span><span>${money(R.base)}</span></div>
-      ${q.extraMiles > 0 ? `<div class="row"><span>${q.extraMiles.toFixed(2)} extra mi × ${money(R.per_mile)}</span><span>+${money(R.per_mile * q.extraMiles)}</span></div>` : ""}
-      <div class="row"><span>Round up to $0.05 · ${capNote}</span><span></span></div>
+      <div class="row"><span>Your trip (composite miles)</span><span>${q.compositeMi.toFixed(2)} mi</span></div>
+      <div class="row"><span>Whole line · ${esc(q.line)}</span><span>${q.lineMi.toFixed(2)} mi</span></div>
+      <div class="row"><span>Share of the line</span><span>${pct}%</span></div>
+      <div class="row"><span>${money(R.max)} × ${pct}%</span><span>${money(q.raw)}</span></div>
+      <div class="row"><span>Round up to $0.05 · minimum ${money(R.min)} · maximum ${money(R.max)}</span><span></span></div>
       ${q.reduced ? `<div class="row"><span>${esc(reducedLabel)} · 50%, rounded down</span><span></span></div>` : ""}
-      <div class="row total"><span>${periodLabel(q.period)} fare</span><span>${money(q.fare)}</span></div>
-    </div><p class="fine">Washington Metrorail's fare model (WMATA Tariff 49), scaled so the maximum equals today's $2.40.</p></details>`;
+      <div class="row total"><span>Your fare</span><span>${money(q.fare)}</span></div>
+    </div><p class="fine">Ride a line from its first stop to its last and you pay ${money(R.max)}. Ride less, pay less.
+      Distance is measured in composite miles, as Washington Metrorail does.</p></details>`;
 }
 
 let map = null;
@@ -43,8 +42,7 @@ export function render(root, ctx) {
   const st = S.get();
   if (!p.from) p.from = st.recent[0] || "place-coecl";
   if (!p.to) p.to = st.recent.find(x => x !== p.from) || "place-armnl";
-  const period = p.period === "auto" ? periodFor() : p.period;
-  const q = p.from !== p.to ? quoteFor(p.from, p.to, period) : null;
+  const q = p.from !== p.to ? quoteFor(p.from, p.to) : null;
   const fav = q && S.isFavorite(p.from, p.to);
 
   root.innerHTML = `
@@ -53,15 +51,13 @@ export function render(root, ctx) {
       <button class="od-field" data-pick="from"><small>From</small><span>${lineDots(ST[p.from].lines)} ${esc(stationName(p.from))}</span></button>
       <button class="icon-btn swap" data-act="swap" aria-label="Swap stations">${icon("swap")}</button>
       <button class="od-field" data-pick="to"><small>To</small><span>${lineDots(ST[p.to].lines)} ${esc(stationName(p.to))}</span></button>
-      <div class="seg" role="group" aria-label="Fare period">${["auto", "peak", "offpeak"].map(k => `<button data-period="${k}" aria-pressed="${p.period === k}">${
-        k === "auto" ? `Now · ${periodLabel(periodFor())}` : periodLabel(k)}</button>`).join("")}</div>
     </section>
     ${q ? `<section class="card quote">
       <div class="quote-top"><div><small class="muted">Your fare</small><div class="big" data-fare>${money(q.fare)}</div></div>
         <button class="icon-btn ${fav ? "on" : ""}" data-act="fav" aria-pressed="${fav}" aria-label="${fav ? "Remove saved route" : "Save route"}">${icon("star", fav ? "filled" : "")}</button></div>
       <div class="was">Flat fare today <s>${money(q.today)}</s>
         ${q.saving > 0 ? `<span class="save">You save ${money(q.saving)}</span>` : `<span class="save neutral">Same as today — never more</span>`}</div>
-      <div class="stats3"><div><b>${q.stops}</b><small>${q.stops === 1 ? "stop" : "stops"}</small></div><div><b>${q.railMi.toFixed(1)} mi</b><small>track</small></div><div><b>${q.compositeMi.toFixed(1)} mi</b><small>composite</small></div></div>
+      <div class="stats3"><div><b>${q.stops}</b><small>${q.stops === 1 ? "stop" : "stops"}</small></div><div><b>${q.compositeMi.toFixed(1)} mi</b><small>your trip</small></div><div><b>${Math.round(q.share * 100)}%</b><small>of the line</small></div></div>
       ${breakdown(q, S.riderType().label)}
       <div class="map" id="map"></div>
       <p class="path">${q.path.map(id => esc(ST[id].name)).join(" → ")}</p>
@@ -78,7 +74,6 @@ export function render(root, ctx) {
     if (id) { p[which] = id; ctx.refresh(); }
   }));
   root.querySelector('[data-act="swap"]').onclick = () => { [p.from, p.to] = [p.to, p.from]; ctx.refresh(); };
-  root.querySelectorAll("[data-period]").forEach(b => (b.onclick = () => { p.period = b.dataset.period; ctx.refresh(); }));
   if (!q) return;
   root.querySelector('[data-act="fav"]').onclick = () => {
     toast(S.toggleFavorite(p.from, p.to) ? "Route saved to Home" : "Route removed"); ctx.refresh();

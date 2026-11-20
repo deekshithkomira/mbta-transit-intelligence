@@ -3,7 +3,7 @@ import { esc, icon, logo, money } from "../ui.js";
 
 const SLIDES = [
   { k: "Pay by distance", h: "One stop shouldn't cost the same as thirteen.",
-    s: "Short-Hop prices every subway trip by how far you ride, on Washington Metrorail's fare model.",
+    s: "Ride a line from one end to the other and you pay $2.40. Ride less, pay less — by the distance you actually travel.",
     art: `<svg viewBox="0 0 260 150"><path d="M20 110 C80 110 90 40 150 40 S 220 40 240 30" stroke="#00843d" stroke-width="10" fill="none" stroke-linecap="round"/>
       <circle cx="20" cy="110" r="13" fill="#fff" stroke="#13203a" stroke-width="5"/><circle cx="75" cy="96" r="9" fill="#fff" stroke="#13203a" stroke-width="4"/>
       <circle cx="240" cy="30" r="13" fill="#fff" stroke="#13203a" stroke-width="5"/>
@@ -15,7 +15,7 @@ const SLIDES = [
       <path d="M110 32h12v12h-12zM138 32h12v12h-12zM110 60h12v12h-12zM128 50h6v6h-6zM140 58h10v6h-10zM128 66h6v6h-6z" fill="#13203a"/>
       <rect x="110" y="92" width="40" height="8" rx="4" fill="#3ecf8e"/><path d="M40 75h40M180 75h40" stroke="#13a36f" stroke-width="6" stroke-linecap="round" stroke-dasharray="2 12"/>
       <circle cx="30" cy="75" r="12" fill="#3ecf8e"/><circle cx="230" cy="75" r="12" fill="#ffc72c"/></svg>` },
-  { k: "Never more than today", h: "Every fare is capped at $2.40.",
+  { k: "Never more than today", h: "End to end is $2.40. Never more.",
     s: "Long trips cost what they do now. Short hops cost less. And once you've spent a 7-day pass worth in a week, the rest of the week is free.",
     art: `<svg viewBox="0 0 260 150"><g font-family="Inter" font-weight="800">${[0.8, 1.2, 1.6, 2.0, 2.4, 2.4].map((f, i) =>
       `<rect x="${28 + i * 36}" y="${130 - f * 45}" width="26" height="${f * 45}" rx="6" fill="${f >= 2.4 ? "#13203a" : "#ffc72c"}"/>`).join("")}

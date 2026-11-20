@@ -14,7 +14,7 @@ const VIEWS = { home, plan, ticket, activity, wallet, account };
 const view = $("#view"), tabs = $("#tabs");
 
 const ctx = {
-  plan: { from: null, to: null, period: "auto" },
+  plan: { from: null, to: null },
   go(path) { if (location.hash !== `#/${path}`) location.hash = `#/${path}`; else route(); },
   refresh: () => route(),
   openTopUp: () => wallet.openTopUp(ctx),

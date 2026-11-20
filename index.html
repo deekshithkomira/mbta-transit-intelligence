@@ -103,7 +103,7 @@
 </section>
 
 <section id="shorthop" class="block">
-  <div class="sh"><span class="num">06</span><h2>Short-Hop — distance fares on the Washington Metrorail model</h2></div>
+  <div class="sh"><span class="num">06</span><h2>Short-Hop — pay by distance, end to end of a line = $2.40</h2></div>
   <p class="findings" data-f="short_hop"></p>
   <div class="grid2">
     <div class="card"><h3>The rider app — try it (demo money only)</h3>
@@ -111,11 +111,9 @@
       <p class="note">Plan a trip, tap in to get a QR ticket, tap out where you get off, and pay for the distance you rode.
         <a href="app/" target="_blank" rel="noopener">Open full screen</a> · installable on a phone home screen · works offline.</p></div>
     <div>
-      <div class="card"><h3>Fare rules — Washington Metrorail, scaled to Boston</h3>
+      <div class="card"><h3>Fare rule — fare = $2.40 × your distance ÷ the whole line</h3>
         <table class="mini" id="sh-rules"></table>
-        <p class="note">Composite miles = average of track distance and straight-line distance; fares round up to $0.05.
-          Boston keeps every Washington ratio (max = 3 × base, per mile = 20% of base) and sets the maximum to today's $2.40, so no trip costs more than now.
-          Missed tap-out = $2.40 because MBTA gates check entry only.</p></div>
+        <p class="note">Distance is measured the way Washington Metrorail does: composite miles (the average of track and straight-line distance), rounded up to $0.05. The $0.80 minimum is one third of the maximum, Washington's ratio. A missed tap-out costs $2.40 because MBTA gates check entry only.</p></div>
       <div class="card"><h3>Example trips</h3><table class="mini" id="sh-table"></table>
         <p class="note">Break-even: paying riders on a trip priced f instead of $2.40 must grow by 2.40/f − 1. The MBTA publishes no station-to-station trip table, so this is the condition a pilot must meet, not a forecast.</p></div>
     </div>
@@ -132,7 +130,7 @@
       <p>MBTA subway gates validate <b>entry only</b>, and most Green Line surface stops have no gates at all, so a flat fare was the only enforceable price.
         Contactless taps (live since Aug 2024) make an account-based tap-out possible: exit validators at gated stations first (Phase 1), then on-board validators on the Green Line.</p></div>
     <div class="card prose"><h3>Sources</h3>
-      <p><b>Washington Metrorail</b>: $2.25 base for the first 3 composite miles, $0.45 per additional mile, $6.75 maximum, $2.25–$2.50 late night and weekends
+      <p><b>Washington Metrorail</b> already charges by distance with tap-in/tap-out, measured in composite miles and rounded up to $0.05 ($2.25–$6.75)
         (<a href="https://www.wmata.com/content/dam/wmata-com/about/public-records/Tariff%2049.pdf" target="_blank" rel="noopener">WMATA Tariff 49, effective July 1, 2026</a>).</p>
       <p><b>MBTA today</b>: $2.40 flat, set in 2019; fall-2026 changes are pilots, not a fare increase (<a href="https://www.mbta.com/fares/recent-and-upcoming-fare-projects" target="_blank" rel="noopener">MBTA</a>).</p>
       <p><b>Distances</b>: MBTA Rapid Transit Stop Distances (open data).</p></div>
