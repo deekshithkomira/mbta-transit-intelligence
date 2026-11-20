@@ -35,8 +35,8 @@ STEPS = [
      "Tap out at Arlington, and you pay eighty cents. The fare follows the distance."),
     ("activity", "Activity", "What you saved vs the flat fare",
      "Every trip shows what you saved compared with the flat fare."),
-    ("outro", "Try it on your phone", "deekshithkomira.github.io/mbta-transit-intelligence/app",
-     "Try it on your phone. The link is in the post."),
+    ("outro", "A fair fare for Boston", "A proposal for the MBTA",
+     "If the MBTA and the City of Boston adopted this, every short trip would finally be fair."),
 ]
 GAP = 0.55     # pause after each line
 LEAD = 0.35

@@ -1,5 +1,5 @@
 {
- "total": 50.529,
+ "total": 53.496,
  "steps": [
   {
    "key": "intro",
@@ -71,16 +71,16 @@
    "text": "Every trip shows what you saved compared with the flat fare.",
    "start": 43.848,
    "voice_at": 43.848,
-   "end": 47.225
+   "end": 47.318
   },
   {
    "key": "outro",
-   "title": "Try it on your phone",
-   "sub": "deekshithkomira.github.io/mbta-transit-intelligence/app",
-   "text": "Try it on your phone. The link is in the post.",
-   "start": 47.225,
-   "voice_at": 47.225,
-   "end": 50.129
+   "title": "A fair fare for Boston",
+   "sub": "A proposal for the MBTA",
+   "text": "If the MBTA and the City of Boston adopted this, every short trip would finally be fair.",
+   "start": 47.318,
+   "voice_at": 47.318,
+   "end": 53.096
   }
  ]
 }

@@ -14,7 +14,6 @@ import wave
 from pathlib import Path
 
 import numpy as np
-import qrcode
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 HERE = Path(__file__).parent
@@ -22,7 +21,6 @@ sys.path.insert(0, str(HERE.parent))
 import audio as A  # noqa: E402
 
 W, H, FPS = 1920, 1080, 30
-APP_URL = "https://deekshithkomira.github.io/mbta-transit-intelligence/app/"
 NAVY, NAVY2, YELLOW, GREEN, WHITE, MUTE = (11, 18, 32), (22, 36, 64), (255, 199, 44), (62, 207, 142), (238, 242, 248), (154, 166, 189)
 F = "/System/Library/Fonts/HelveticaNeue.ttc"
 font = lambda size, idx=0: ImageFont.truetype(F, size, index=idx)  # noqa: E731
@@ -91,17 +89,16 @@ def caption_layer(i: int) -> Image.Image:
 def end_card() -> Image.Image:
     im = BG.copy()
     d = ImageDraw.Draw(im)
-    q = qrcode.QRCode(border=2, box_size=12)
-    q.add_data(APP_URL); q.make(fit=True)
-    qr = q.make_image(fill_color="black", back_color="white").convert("RGB").resize((420, 420), Image.NEAREST)
-    card = Image.new("RGB", (460, 460), "white"); card.paste(qr, (20, 20))
-    im.paste(card, (1240, 300))
-    d.text((140, 300), "Try Short-Hop", font=font(110, BOLD), fill=WHITE)
-    d.text((140, 440), "on your phone", font=font(64), fill=MUTE)
-    d.text((140, 590), "deekshithkomira.github.io/", font=font(46, BOLD), fill=YELLOW)
-    d.text((140, 650), "mbta-transit-intelligence/app", font=font(46, BOLD), fill=YELLOW)
-    d.text((140, 760), "Scan the code, or use the link in the post.", font=font(34), fill=MUTE)
-    d.text((1240, 790), "Scan to open the app", font=font(30, BOLD), fill=WHITE)
+    d.text((140, 250), "SHORT-HOP · A PROPOSAL FOR THE MBTA", font=font(30, BOLD), fill=YELLOW)
+    d.text((140, 310), "A fair fare for Boston", font=font(110, BOLD), fill=WHITE)
+    d.text((140, 480), "Whole line, end to end:", font=font(52), fill=MUTE)
+    d.text((760, 480), "$2.40", font=font(52, BOLD), fill=YELLOW)
+    d.text((140, 560), "One stop:", font=font(52), fill=MUTE)
+    d.text((760, 560), "$0.80", font=font(52, BOLD), fill=GREEN)
+    d.text((140, 640), "Every trip in between:", font=font(52), fill=MUTE)
+    d.text((760, 640), "priced by distance", font=font(52, BOLD), fill=WHITE)
+    d.text((140, 790), "If the MBTA and the City of Boston adopted this,", font=font(40), fill=WHITE)
+    d.text((140, 845), "every short trip would finally be fair.", font=font(40), fill=WHITE)
     return im
 
 
