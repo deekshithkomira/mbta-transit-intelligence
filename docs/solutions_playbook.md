@@ -60,17 +60,16 @@ In a field experiment at French rail stations, posters with an eye cue alone did
 
 _Evidence:_ Ayal, Celse & Hochman (OBHDP 166, 2021).
 
-## 6. Short-Hop: distance fares on the Washington Metrorail model
+## 6. Short-Hop: pay by distance — end to end of a line costs $2.40
 **Problem area:** Fare evasion · fare design
 
-Copley → Arlington costs the same $2.40 as Copley → Medford/Tufts (6.0 track miles), so the flat fare is worst value exactly where skipping payment is most tempting. Washington's model, scaled so the maximum equals today's fare: $0.80 covers the first 3 composite miles, +$0.16 per extra mile, capped at $2.40. Copley → Arlington $0.80; Copley → Medford/Tufts $1.20. No fare ever rises.
+Copley → Arlington costs the same $2.40 as Copley → Medford/Tufts (6.0 track miles), so the flat fare is worst value exactly where skipping payment is most tempting. Under Short-Hop, riding any line end to end costs $2.40 and shorter trips pay in proportion: Copley → Medford/Tufts $1.80, Copley → Arlington the $0.80 minimum. No fare ever rises.
 
-- Tap in and tap out with the Short-Hop app or a contactless card; the fare is set on exit from composite miles (average of track and straight-line distance), rounded up to $0.05, exactly as Washington Metrorail does.
-- A missing tap-out is charged $2.40 (MBTA gates validate entry only, so skipping the exit tap must never be cheaper).
-- Nights after 9:30pm and weekends: $0.80–$0.90; students and seniors pay half.
-- Pilot and test break-even: a $0.80 short trip needs 200% more paying riders on it; Copley → Medford/Tufts at $1.20 needs 100%.
+- Tap in and tap out with the Short-Hop app or a contactless card; the fare is set on exit from composite miles (average of track and straight-line distance, as Washington Metrorail measures it), rounded up to $0.05.
+- A missing tap-out is charged $2.40 (MBTA gates validate entry only, so skipping the exit tap must never be cheaper). Students and seniors pay half.
+- Pilot and test break-even: a $0.80 short trip needs 200% more paying riders on it; Copley → Medford/Tufts at $1.80 needs 33%.
 
-_Evidence:_ WMATA Tariff 49 (effective July 1, 2026): $2.25 base for the first 3 composite miles, $0.45 per additional mile, $6.75 maximum, rounded up to $0.05; MBTA $2.40 flat fare; MBTA Rapid Transit Stop Distances.
+_Evidence:_ WMATA Tariff 49 (effective July 1, 2026) for composite miles, rounding and the min:max ratio; MBTA $2.40 flat fare; MBTA Rapid Transit Stop Distances.
 
 ## 7. Treat elevators as critical service, not facilities
 **Problem area:** Accessibility

@@ -356,3 +356,5 @@ table.t .n { text-align: right; font-variant-numeric: tabular-nums; white-space:
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 .icon-btn.on .i.filled { fill: #13203a; stroke: #13203a; }
 .bar i.flat[data-zero], .bar i.paid[data-zero] { display: none; }
+.formula { font-weight: 800; font-size: 17px; text-align: center; background: var(--surface2); border-radius: 14px; padding: 12px; margin: 0 0 10px; }
+.formula span { color: var(--good); }

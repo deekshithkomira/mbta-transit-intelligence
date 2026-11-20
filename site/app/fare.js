@@ -1,11 +1,11 @@
-// Short-Hop fare engine — Washington Metrorail model, Boston calibration.
-// Mirrors src/mbta_ti/analysis/short_hop.py; parity is checked by tests/app_fare.test.mjs.
+// Short-Hop fare engine. Mirrors src/mbta_ti/analysis/short_hop.py; parity is checked by
+// tests/app_fare.test.mjs.
 //
-//   composite miles = average(track distance, straight-line distance)
-//   fare            = base for the first 3 composite miles
-//                   + per-mile charge (20% of base) for each extra composite mile
-//                   capped at max (3 x base), rounded UP to $0.05
-//   nights & weekends: base .. offpeak_max     reduced fare: 50%, rounded DOWN to $0.05
+//   Riding a line from its first stop to its last costs $2.40.
+//   fare = $2.40 x (trip composite miles / composite miles of the whole line)
+//          rounded UP to $0.05, never below $0.80, never above $2.40
+//   composite miles = average(track distance, straight-line distance)  — Washington Metrorail
+//   reduced fare = 50%, rounded DOWN to $0.05
 
 export const METERS_PER_MILE = 1609.344;
 
@@ -21,19 +21,19 @@ export function haversineMeters(a, b) {
 
 export const compositeMiles = (railM, straightM) => (railM + straightM) / 2 / METERS_PER_MILE;
 
-/** 'offpeak' from 9:30pm to close on weekdays and all day Saturday/Sunday, else 'peak'. */
-export function periodFor(date = new Date()) {
-  const day = date.getDay(), mins = date.getHours() * 60 + date.getMinutes();
-  if (day === 0 || day === 6) return "offpeak";
-  return mins >= 21 * 60 + 30 || mins < 5 * 60 ? "offpeak" : "peak";
+export function fare(tripMi, lineMi, rules, { reduced = false } = {}) {
+  if (!(tripMi > 0)) return 0;
+  const share = tripMi / lineMi;
+  const regular = share >= rules.full_tolerance ? rules.max
+    : Math.min(rules.max, Math.max(rules.min, roundUp5(rules.max * share)));
+  return reduced ? roundDown5(regular * rules.reduced_share) : regular;
 }
 
-export function fare(compositeMi, rules, { period = "peak", reduced = false } = {}) {
-  if (!(compositeMi > 0)) return 0;
-  const extra = Math.max(0, compositeMi - rules.base_miles);
-  let regular = Math.min(rules.max, roundUp5(rules.base + rules.per_mile * extra));
-  if (period === "offpeak") regular = Math.min(rules.offpeak_max, regular);
-  return reduced ? roundDown5(regular * rules.reduced_share) : regular;
+/** The line whose end-to-end trip costs the maximum for this journey. */
+export function wholeLine(patterns, a, b) {
+  let pool = patterns.filter(p => p.stations.includes(a) && p.stations.includes(b));
+  if (!pool.length) pool = patterns.filter(p => p.stations.includes(a) || p.stations.includes(b));
+  return pool.reduce((x, y) => (y.composite_mi > x.composite_mi ? y : x));
 }
 
 /** Dijkstra over track meters. adj: {station: {neighbour: meters}} */
@@ -63,22 +63,21 @@ export function shortestPath(adj, a, b) {
   return { meters: dist[b], path };
 }
 
-export function quote(net, from, to, opts = {}) {
+export function quote(net, from, to, { reduced = false } = {}) {
   const { graph, rules, flat_fare: flat } = net;
   if (from === to) return null;
   const { meters, path } = shortestPath(graph.adj, from, to);
   const straight = haversineMeters(graph.stations[from], graph.stations[to]);
   const cm = compositeMiles(meters, straight);
-  const period = opts.period || "peak";
-  const reduced = !!opts.reduced;
-  const extraMiles = Math.max(0, cm - rules.base_miles);
-  const raw = rules.base + rules.per_mile * extraMiles;
-  const amount = fare(cm, rules, { period, reduced });
+  const line = wholeLine(graph.patterns, from, to);
+  const amount = fare(cm, line.composite_mi, rules, { reduced });
   const today = reduced ? roundDown5(flat * rules.reduced_share) : flat;
+  const share = Math.min(1, cm / line.composite_mi);
   return {
     path, stops: path.length - 1,
     railMi: meters / METERS_PER_MILE, straightMi: straight / METERS_PER_MILE, compositeMi: cm,
-    extraMiles, raw, period, reduced, fare: amount, today, saving: Math.max(0, today - amount),
-    capped: amount >= (period === "offpeak" ? rules.offpeak_max : rules.max) - 1e-9,
+    line: line.name, lineMi: line.composite_mi, share, raw: rules.max * share,
+    reduced, fare: amount, today, saving: Math.max(0, today - amount),
+    capped: amount >= rules.max, floored: amount === rules.min && rules.max * share < rules.min,
   };
 }

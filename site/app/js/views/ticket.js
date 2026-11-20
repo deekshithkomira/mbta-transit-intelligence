@@ -2,7 +2,7 @@ import { ST, net, stationName } from "../data.js";
 import { maxFare, quoteFor, tapIn, tapOut } from "../ride.js";
 import * as S from "../store.js";
 import { confirmSheet, esc, fmtDate, fmtTime, icon, lineDots, money, openSheet, pickStation, toast } from "../ui.js";
-import { breakdown, periodLabel } from "./plan.js";
+import { breakdown } from "./plan.js";
 
 let timers = [];
 const clear = () => { timers.forEach(clearInterval); timers = []; };
@@ -11,7 +11,7 @@ export function render(root, ctx) {
   clear();
   const st = S.get(), a = st.active;
   if (!a) return ready(root, ctx);
-  const est = a.planned ? quoteFor(a.from, a.planned, a.period) : null;
+  const est = a.planned ? quoteFor(a.from, a.planned, a.reduced) : null;
   root.innerHTML = `
     <header class="top"><h1>Your ticket</h1></header>
     <section class="ticket">
@@ -20,7 +20,7 @@ export function render(root, ctx) {
       <div class="qr-refresh"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="8" class="ring-bg"/><circle cx="10" cy="10" r="8" id="qr-ring" class="ring-fg"/></svg>
         <span id="qr-note">Code refreshes every 30 s</span></div>
       <div class="timer" id="timer">0:00</div>
-      <div class="muted small">Ticket ${esc(a.id)} · ${periodLabel(a.period)} · ${esc(S.RIDER_TYPES[a.riderType].label)}</div>
+      <div class="muted small">Ticket ${esc(a.id)} · ${esc(S.RIDER_TYPES[a.riderType].label)}</div>
       <div class="tear"></div>
       <div class="rows">
         <div class="row"><span>Entered</span><span>${fmtTime(a.at)}</span></div>
@@ -102,7 +102,7 @@ function ready(root, ctx) {
 }
 
 export function openReceipt(trip, q = null) {
-  const qq = q || (trip.to && trip.to !== trip.from ? quoteFor(trip.from, trip.to, trip.period) : null);
+  const qq = q || (trip.to && trip.to !== trip.from ? quoteFor(trip.from, trip.to, !!S.RIDER_TYPES[trip.riderType]?.reduced) : null);
   openSheet(`<div class="receipt">
       <div class="r-icon ${trip.status === "missed" ? "warn" : ""}">${icon(trip.status === "missed" ? "alert" : "check")}</div>
       <h2 class="sheet-title">${trip.status === "missed" ? "Missed tap-out" : trip.status === "same-station" ? "No charge" : "Trip complete"}</h2>

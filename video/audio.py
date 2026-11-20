@@ -39,10 +39,10 @@ LINES = [
     "jump the gate, or slip through behind someone who paid.",
     "Short-Hop fixes the price, not just the gate. Tap in at Copley, tap out at Arlington, "
     "and pay eighty cents.",
-    "It works like Washington's Metro. Eighty cents covers the first three miles, then sixteen "
-    "cents a mile, never more than two forty. Copley to Medford Tufts costs one twenty.",
+    "Here's the rule. Ride a line from one end to the other, and you pay two forty. Ride less, "
+    "and you pay less. Copley to Medford Tufts is about three quarters of the line, so it costs one eighty.",
     "Forget to tap out, and you're charged the full two forty, so cheating never pays. "
-    "Washington already runs its subway this way.",
+    "Washington's Metro already charges by distance, the same way.",
     "Pay by distance. Never more than today.",
 ]
 # Words the synthesiser mispronounces, given as Apple phonemes: Copley = KOP-lee.

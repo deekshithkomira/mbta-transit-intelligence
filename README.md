@@ -28,7 +28,7 @@ _Snapshot from the November 2026 run. Every number is computed by the pipeline; 
 | **Fare enforcement** | With a $50 fine, deterring a rational evader takes inspection on **≥4.8% of trips**, about **15,400 checks every weekday** at gated stations. The MBTA reported **88 warnings and 0 citations** for all of 2025. |
 | **Inspection strategy** | Optimised, randomised deployment deters **54% more evasion** than staffing the busiest stations first at the same headcount. It wins in **every one of 30 sensitivity cases**. |
 
-| **Short-Hop app** | Copley → Arlington and Copley → Medford/Tufts both cost $2.40 today. On Washington Metrorail's model, scaled so the maximum is today's $2.40, they cost **$0.80** and **$1.20**; no fare ever rises. To break even on revenue, the $0.80 trip needs 200% more paying riders and the $1.20 trip needs 100%, so it should be piloted first. |
+| **Short-Hop app** | Riding any subway line end to end costs **$2.40**, and shorter trips pay in proportion: Copley → Medford/Tufts **$1.80**, Copley → Arlington **$0.80**. No fare ever rises. To break even on revenue, the $0.80 trip needs 200% more paying riders and the $1.80 trip needs 33%, so it should be piloted first. |
 
 ### External validation
 
@@ -50,27 +50,33 @@ The MBTA reported that its Track Improvement Program saves riders about **2.4M m
    * Optimal proof-of-payment inspection rates (published research).
 
    Every citation is in [`docs/research_evidence.md`](docs/research_evidence.md). The playbook's figures are generated from the analysis at build time, so they cannot drift from the data.
-3. **Short-Hop: a working rider app that charges by distance, on Washington Metrorail's fare model.** Today a student riding one stop pays the same $2.40 as someone riding thirteen, which is exactly where skipping payment is most tempting. Short-Hop follows WMATA's official tariff (Tariff 49, effective July 1, 2026) and keeps every Washington ratio:
+3. **Short-Hop: a working rider app that charges by distance.** Today a student riding one stop pays the same $2.40 as someone riding thirteen, which is exactly where skipping payment is most tempting. The rule: **riding a line from its first stop to its last costs $2.40, and every shorter trip pays in proportion to the distance travelled.**
 
-   | Rule | Washington | Short-Hop Boston |
-   |---|---|---|
-   | Base fare, first 3 composite miles | $2.25 | **$0.80** |
-   | Each extra composite mile (20% of base) | $0.45 | **$0.16** |
-   | Maximum (3 × base) | $6.75 | **$2.40**, today's fare |
-   | Nights after 9:30pm and weekends | $2.25–$2.50 | **$0.80–$0.90** |
-   | Reduced fare (students, seniors) | 50% | 50% |
-   | Missed tap-out | base fare | **$2.40** (MBTA gates check entry only) |
+   **fare = $2.40 × (your distance ÷ the whole line's distance)**, rounded up to $0.05, minimum $0.80
 
-   Composite miles are the average of track distance (MBTA Rapid Transit Stop Distances) and straight-line distance, and fares round up to $0.05. Copley → Arlington costs **$0.80**, Copley → Medford/Tufts **$1.20**, Alewife → Braintree the $2.40 maximum. No trip ever costs more than today.
+   | Trip | Share of the line | Today | Short-Hop |
+   |---|---|---|---|
+   | Copley → Arlington (1 stop) | 3% | $2.40 | **$0.80** (minimum) |
+   | Copley → Medford/Tufts (13 stops) | 74% of Green Line E | $2.40 | **$1.80** |
+   | Heath St → Medford/Tufts (whole Green E) | 100% | $2.40 | **$2.40** |
+   | Alewife → Braintree (whole Red) | 100% | $2.40 | **$2.40** |
+   | Wonderland → Bowdoin (whole Blue) | 100% | $2.40 | **$2.40** |
+
+   The mechanics follow Washington Metrorail (WMATA Tariff 49, effective July 1, 2026):
+   * **Distance:** "composite miles", the average of track distance (MBTA Rapid Transit Stop Distances) and straight-line distance.
+   * **Rounding:** fares round up to $0.05.
+   * **Minimum fare:** one third of the maximum, Washington's ratio ($2.25 / $6.75), which gives $0.80.
+
+   Reduced fares are half price. A missed tap-out costs $2.40, because MBTA gates check entry only. No trip ever costs more than today.
 
    **[▶ Open the Short-Hop app](https://deekshithkomira.github.io/mbta-transit-intelligence/app/)**, a complete mobile web app you can install on a phone, with no build step and no framework ([`site/app/`](site/app)):
    * **First launch:** splash screen, three intro slides, profile setup with rider type, and demo welcome credit.
    * **Home:** Short-Hop card and balance, quick actions, an active-trip banner, weekly fare-cap progress, saved routes, **live MBTA service alerts**, and recent trips.
-   * **Plan:** searchable station picker (recent stations, "use my location"), fare quote with a full breakdown, route map, **live departures** from the MBTA V3 API, peak and night pricing, and saved routes.
+   * **Plan:** searchable station picker (recent stations, "use my location"), fare quote showing your share of the whole line, route map, **live departures** from the MBTA V3 API, and saved routes.
    * **Ticket:** QR ticket that rotates every 30 s (screenshots can't be reused), live trip timer, tap out anywhere, receipts, and "Report a problem".
    * **Wallet:** add money, saved cards (published test cards only, so real card numbers are refused), default card, auto-reload, the weekly fare cap at the 7-day LinkPass price ($22.50), and transaction history.
    * **Activity:** monthly totals, a 14-day chart of what you paid versus the flat fare, filters, and CSV export.
-   * **Account:** profile, reduced-fare eligibility, notification settings, dark mode, larger text, reduced motion, fare rules versus Washington, help and FAQ, privacy (export or delete your data), and about.
+   * **Account:** profile, reduced-fare eligibility, notification settings, dark mode, larger text, reduced motion, fare rules, help and FAQ, privacy (export or delete your data), and about.
    * **Built to work offline and accessibly:** service worker, installable manifest, keyboard and screen-reader support, and live data that's throttled and cached under the MBTA's rate limit.
    * **Tested:** JS/Python fare-engine parity and wallet unit tests (`tests/*.test.mjs`), plus a 38-step headless end-to-end test of every module (`tests/e2e_app.mjs`).
 
@@ -124,7 +130,7 @@ flowchart LR
 | Which bus routes are worst? | **Beta-binomial empirical Bayes** with 90% credible intervals | Raw on-time rates over-rank routes with few observations |
 | How long do slow zones last? | **Kaplan-Meier** survival by line, still-open restrictions right-censored | Dropping open restrictions would bias lifetimes downward |
 | Do slow zones cost riders time? | OLS of excess minutes per trip on % track restricted, **line fixed effects**, HC1 errors | Controls for stable differences between lines. Reported as an association, not a causal effect |
-| What should a short trip cost? | Dijkstra over MBTA track distances; WMATA composite miles and fare formula with Boston calibration; JS/Python parity tests; break-even growth 2.40/f − 1 | No origin–destination table is published, so the analysis states the condition a pilot must meet instead of inventing demand |
+| What should a short trip cost? | Dijkstra over MBTA track distances; WMATA composite miles; fare = $2.40 × trip ÷ whole line; JS/Python parity tests; break-even growth 2.40/f − 1 | No origin–destination table is published, so the analysis states the condition a pilot must meet instead of inventing demand |
 | Where should inspectors stand? | Concave allocation, closed-form **water-filling**, randomised roster sampling, sensitivity grid | Diminishing returns are realistic, and randomisation stops evaders learning the schedule |
 
 ## Data quality log

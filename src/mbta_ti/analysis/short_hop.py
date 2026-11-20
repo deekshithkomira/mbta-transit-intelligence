@@ -1,4 +1,4 @@
-"""Short-Hop: a distance-based MBTA subway fare built on Washington Metrorail's fare model.
+"""Short-Hop: a distance-based MBTA subway fare — end to end of a line costs today's $2.40.
 
 The problem
 -----------
@@ -6,29 +6,28 @@ Every MBTA subway trip costs the same $2.40 (MBTA fares page; unchanged since 20
 One stop costs the same as thirteen, so the flat fare is the worst value exactly where
 walking, cycling or evading is most tempting.
 
-The model: Washington Metrorail (WMATA Tariff 49, effective July 1, 2026)
--------------------------------------------------------------------------
-* Base fare covers the first 3 composite miles.
-* Each additional composite mile costs 20% of the base fare.
-* The maximum fare is 3x the base fare.
-* Composite mile = average of (a) distance along the rail system and (b) straight-line
-  distance between origin and destination.
-* Fares round UP to the nearest $0.05.
-* Late night (9:30pm-close) and weekends: a narrow flat band, $2.25-$2.50 in Washington
-  (i.e. base to base x 1.11).
-* Reduced fares are 50% of the regular fare, rounded DOWN to the nearest $0.05.
+The rule
+--------
+Riding a line from its first stop to its last costs $2.40, and every shorter trip pays in
+proportion to the distance travelled:
 
-Boston calibration
-------------------
-Keep every Washington ratio, but set the maximum to today's MBTA fare so **no trip ever
-costs more than it does now**:
-    max  = $2.40      base = max / 3 = $0.80      per mile = 20% x base = $0.16
-    off-peak band = $0.80-$0.90 (Washington's 2.50/2.25 ratio, rounded up)
+    fare = $2.40 x (trip composite miles / composite miles of the whole line)
+           rounded UP to $0.05, never below $0.80, never above $2.40
 
-One deliberate difference: Washington charges only the base fare for a missed exit tap,
-because its exit gates make tapping out unavoidable.  MBTA gates validate entry only, so a
-missing tap-out is charged the maximum ($2.40) — otherwise skipping the exit tap would
-always be the cheapest choice.
+The mechanics come from Washington Metrorail (WMATA Tariff 49, effective July 1, 2026):
+* composite mile = average of (a) distance along the rail system and (b) straight-line
+  distance between origin and destination;
+* fares round UP to the nearest $0.05;
+* the minimum fare is one third of the maximum, Washington's ratio ($2.25 / $6.75) -> $0.80;
+* reduced fares are 50% of the regular fare, rounded DOWN to the nearest $0.05.
+
+"The whole line" is the longest service pattern that serves both ends of the trip (e.g.
+Heath Street - Medford/Tufts for a Green Line E trip), or, for a trip that changes lines,
+the longest pattern serving either end.  Longer trips are capped at $2.40.
+
+A missing tap-out is charged $2.40: MBTA gates validate entry only, so skipping the exit
+tap must never be cheaper.  (Washington charges its base fare, because its exit gates
+make tapping out unavoidable.)
 
 What the data cannot say
 ------------------------
@@ -50,17 +49,16 @@ from mbta_ti.analysis.common import pct
 FLAT_FARE = 2.40
 METERS_PER_MILE = 1609.344
 
-# Washington Metrorail ratios (WMATA Tariff 49, effective 2026-07-01)
+# Washington Metrorail (WMATA Tariff 49, effective 2026-07-01): mechanics and ratios used
 WMATA = {"base": 2.25, "per_mile": 0.45, "max": 6.75, "base_miles": 3.0,
          "offpeak_min": 2.25, "offpeak_max": 2.50, "reduced_share": 0.5,
          "source": "https://www.wmata.com/content/dam/wmata-com/about/public-records/Tariff%2049.pdf"}
 
-# Boston calibration: same ratios, maximum = today's flat fare
-MAX_FARE = FLAT_FARE
-BASE_FARE = round(MAX_FARE * WMATA["base"] / WMATA["max"], 2)          # $0.80
-PER_MILE = round(BASE_FARE * WMATA["per_mile"] / WMATA["base"], 2)     # $0.16
-BASE_MILES = WMATA["base_miles"]                                        # 3 composite miles
+MAX_FARE = FLAT_FARE                                                  # whole line = $2.40
+MIN_FARE = round(MAX_FARE * WMATA["base"] / WMATA["max"], 2)          # $0.80
+REDUCED_SHARE = WMATA["reduced_share"]
 MISSED_TAP_OUT = MAX_FARE
+FULL_TOLERANCE = 0.98   # end-to-end trips measured either direction differ by a few metres
 
 EXAMPLES = [
     ("place-coecl", "place-armnl"),   # Copley -> Arlington (next stop)
@@ -71,6 +69,7 @@ EXAMPLES = [
     ("place-alfcl", "place-brntn"),   # Alewife -> Braintree (whole Red)
     ("place-ogmnl", "place-forhl"),   # Oak Grove -> Forest Hills (whole Orange)
     ("place-wondl", "place-bomnl"),   # Wonderland -> Bowdoin (whole Blue)
+    ("place-asmnl", "place-matt"),    # Ashmont -> Mattapan (whole Mattapan line)
 ]
 
 
@@ -82,23 +81,20 @@ def round_down_5c(x: float) -> float:
     return math.floor(round(x * 20, 6)) / 20
 
 
-# Washington's late-night/weekend band is base..base x (2.50/2.25); same ratio here -> $0.90
-OFFPEAK_MAX = round_up_5c(BASE_FARE * WMATA["offpeak_max"] / WMATA["offpeak_min"])
-
-
 def composite_miles(rail_m: float, straight_m: float) -> float:
     return (rail_m + straight_m) / 2 / METERS_PER_MILE
 
 
-def fare(composite_mi: float, *, period: str = "peak", reduced: bool = False) -> float:
-    """Washington-model fare, Boston calibration.  period: 'peak' (regular) or 'offpeak'."""
-    if composite_mi <= 0:
+def fare(trip_mi: float, line_mi: float, *, reduced: bool = False) -> float:
+    """Proportional distance fare: whole line = $2.40, minimum $0.80, round up to $0.05."""
+    if trip_mi <= 0:
         return 0.0
-    extra = max(0.0, composite_mi - BASE_MILES)
-    regular = min(MAX_FARE, round_up_5c(BASE_FARE + PER_MILE * extra))
-    if period == "offpeak":
-        regular = min(OFFPEAK_MAX, regular)
-    return round_down_5c(regular * WMATA["reduced_share"]) if reduced else regular
+    share = trip_mi / line_mi
+    if share >= FULL_TOLERANCE:
+        regular = MAX_FARE
+    else:
+        regular = min(MAX_FARE, max(MIN_FARE, round_up_5c(MAX_FARE * share)))
+    return round_down_5c(regular * REDUCED_SHARE) if reduced else regular
 
 
 def haversine_m(a: dict, b: dict) -> float:
@@ -120,6 +116,13 @@ def load_patterns() -> list[dict]:
         pats.append({"route": route, "name": name, "stations": stations, "cum_m": cum,
                      "length_m": float(cum[-1])})
     return pats
+
+
+def add_line_miles(patterns: list[dict], stops: dict) -> None:
+    """Composite miles of each whole line (first stop to last stop)."""
+    for p in patterns:
+        a, b = stops[p["stations"][0]], stops[p["stations"][-1]]
+        p["composite_mi"] = composite_miles(p["length_m"], haversine_m(a, b))
 
 
 def build_graph(patterns: list[dict]) -> dict[str, dict[str, float]]:
@@ -156,14 +159,22 @@ def shortest(adj: dict[str, dict[str, float]], src: str, dst: str) -> tuple[floa
     return dist[dst], path
 
 
-def quote(adj, stops: dict, a: str, b: str) -> dict:
+def whole_line(patterns: list[dict], a: str, b: str) -> dict:
+    """The line whose end-to-end trip costs $2.40 for this journey (see module docstring)."""
+    both = [p for p in patterns if a in p["stations"] and b in p["stations"]]
+    pool = both or [p for p in patterns if a in p["stations"] or b in p["stations"]]
+    return max(pool, key=lambda p: p["composite_mi"])
+
+
+def quote(adj, stops: dict, patterns: list[dict], a: str, b: str) -> dict:
     rail_m, path = shortest(adj, a, b)
     straight_m = haversine_m(stops[a], stops[b])
     cm = composite_miles(rail_m, straight_m)
+    line = whole_line(patterns, a, b)
     return {"rail_mi": rail_m / METERS_PER_MILE, "straight_mi": straight_m / METERS_PER_MILE,
-            "composite_mi": cm, "stops": len(path) - 1, "path": path,
-            "fare": fare(cm), "offpeak": fare(cm, period="offpeak"),
-            "reduced": fare(cm, reduced=True)}
+            "composite_mi": cm, "line": line["name"], "line_mi": line["composite_mi"],
+            "stops": len(path) - 1, "path": path,
+            "fare": fare(cm, line["composite_mi"]), "reduced": fare(cm, line["composite_mi"], reduced=True)}
 
 
 def run() -> dict:
@@ -171,33 +182,35 @@ def run() -> dict:
     stops = net["stops"]
     names = {k: v["name"] for k, v in stops.items()}
     patterns = load_patterns()
+    add_line_miles(patterns, stops)
     adj = build_graph(patterns)
 
     examples = []
     for a, b in EXAMPLES:
-        q = quote(adj, stops, a, b)
+        q = quote(adj, stops, patterns, a, b)
         examples.append({"from": names[a], "to": names[b], "stops": q["stops"],
                          "rail_mi": q["rail_mi"], "straight_mi": q["straight_mi"],
-                         "composite_mi": q["composite_mi"], "fare": q["fare"],
-                         "offpeak": q["offpeak"], "reduced": q["reduced"],
+                         "composite_mi": q["composite_mi"], "line": q["line"], "line_mi": q["line_mi"],
+                         "fare": q["fare"], "reduced": q["reduced"],
                          "saving": round(FLAT_FARE - q["fare"], 2),
                          "breakeven_growth": FLAT_FARE / q["fare"] - 1})
     ex = {(e["from"], e["to"]): e for e in examples}
     one, far = ex[("Copley", "Arlington")], ex[("Copley", "Medford/Tufts")]
-    red = ex[("Alewife", "Braintree")]
-    cap_at = BASE_MILES + (MAX_FARE - BASE_FARE) / PER_MILE
+    whole = [e for e in examples if e["fare"] == MAX_FARE]
+    whole_names = ", ".join(f"{e['from']} → {e['to']}" for e in whole[:4])
 
     findings = [
         f"Today Copley → Arlington (1 stop) and Copley → Medford/Tufts ({far['stops']} stops, "
         f"{far['rail_mi']:.1f} track miles) both cost ${FLAT_FARE:.2f}.",
-        f"Washington Metrorail model, scaled to Boston: ${BASE_FARE:.2f} covers the first "
-        f"{BASE_MILES:.0f} composite miles, +${PER_MILE:.2f} per extra mile, maximum "
-        f"${MAX_FARE:.2f} (today's fare) — the same ratios as Washington's $2.25 / $0.45 / $6.75.",
-        f"Copley → Arlington costs ${one['fare']:.2f}; Copley → Medford/Tufts "
-        f"{far['composite_mi']:.1f} composite miles = ${far['fare']:.2f}; Alewife → Braintree "
-        f"reaches the ${red['fare']:.2f} maximum (cap reached at {cap_at:.0f} composite miles).",
-        f"Nights after 9:30pm and weekends: ${BASE_FARE:.2f}–${OFFPEAK_MAX:.2f}; reduced fares "
-        f"(students, seniors) are half price; a missing tap-out is charged ${MISSED_TAP_OUT:.2f}.",
+        f"Short-Hop rule: riding a line end to end costs ${MAX_FARE:.2f}; shorter trips pay in "
+        f"proportion to distance (Washington-style composite miles, rounded up to $0.05), minimum "
+        f"${MIN_FARE:.2f}.",
+        f"Copley → Medford/Tufts = {far['composite_mi']:.2f} of {far['line_mi']:.2f} composite miles "
+        f"on the whole Green Line E = ${far['fare']:.2f}; Copley → Arlington = the ${one['fare']:.2f} "
+        f"minimum. Every end-to-end trip ({whole_names}) "
+        f"costs exactly ${MAX_FARE:.2f}.",
+        f"Reduced fares (students, seniors) are half price; a missing tap-out is charged "
+        f"${MISSED_TAP_OUT:.2f}.",
         f"Revenue break-even: a ${one['fare']:.2f} short trip must grow paying riders on it by "
         f"{pct(one['breakeven_growth'], 0)}; Copley → Medford/Tufts at ${far['fare']:.2f} needs "
         f"{pct(far['breakeven_growth'], 0)}. Pilot before system-wide rollout.",
@@ -209,18 +222,20 @@ def run() -> dict:
             lines_at.setdefault(s, set()).add(p["route"].split("-")[0])
     return {
         "flat_fare": FLAT_FARE,
-        "rules": {"base": BASE_FARE, "per_mile": PER_MILE, "base_miles": BASE_MILES,
-                  "max": MAX_FARE, "offpeak_min": BASE_FARE, "offpeak_max": OFFPEAK_MAX,
-                  "reduced_share": WMATA["reduced_share"], "missed_tap_out": MISSED_TAP_OUT,
-                  "cap_reached_mi": cap_at},
-        "research": {"wmata": WMATA,
-                     "mbta_fare_source": "https://www.mbta.com/fares/subway-fares"},
+        "rules": {"model": "line-proportional", "max": MAX_FARE, "min": MIN_FARE,
+                  "reduced_share": REDUCED_SHARE, "missed_tap_out": MISSED_TAP_OUT,
+                  "full_tolerance": FULL_TOLERANCE},
+        "research": {"wmata": WMATA, "mbta_fare_source": "https://www.mbta.com/fares/subway-fares"},
         "examples": examples,
+        "lines": sorted(({"line": p["name"], "route": p["route"], "composite_mi": p["composite_mi"],
+                          "usd_per_mi": MAX_FARE / p["composite_mi"]} for p in patterns),
+                        key=lambda x: x["composite_mi"]),
         "graph": {"adj": {k: {v: round(w, 1) for v, w in nb.items()} for k, nb in adj.items()},
                   "stations": {s: {"name": names.get(s, s), "lat": stops[s]["lat"],
                                    "lon": stops[s]["lon"], "lines": sorted(lines_at.get(s, []))}
                                for s in station_ids if s in stops},
                   "patterns": [{"name": p["name"], "route": p["route"], "stations": p["stations"],
-                                "length_m": round(p["length_m"], 1)} for p in patterns]},
+                                "length_m": round(p["length_m"], 1),
+                                "composite_mi": round(p["composite_mi"], 4)} for p in patterns]},
         "findings": findings,
     }

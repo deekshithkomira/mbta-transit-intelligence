@@ -2,7 +2,7 @@ import { R, net } from "../data.js";
 import * as S from "../store.js";
 import { confirmSheet, download, esc, icon, money, openSheet, timeAgo, toast } from "../ui.js";
 
-const W = net.research?.wmata || { base: 2.25, per_mile: 0.45, max: 6.75, offpeak_min: 2.25, offpeak_max: 2.5 };
+const W = net.research?.wmata || { base: 2.25, max: 6.75 };
 
 export function render(root, ctx, sub) {
   if (sub && PAGES[sub]) return page(root, ctx, sub);
@@ -21,7 +21,7 @@ export function render(root, ctx, sub) {
       ${row("appearance", "moon", "Appearance & accessibility", themeLabel(st.settings.theme))}
     </section>
     <section class="card menu">
-      ${row("fares", "info", "How fares work", "Washington Metrorail model")}
+      ${row("fares", "info", "How fares work", "End to end of a line = $2.40")}
       ${row("help", "help", "Help & FAQ", "Tapping, refunds, the fare cap")}
       ${row("privacy", "lock", "Privacy & data", "Export or delete your data")}
       ${row("about", "train", "About Short-Hop", "Sources and version")}
@@ -96,22 +96,27 @@ const PAGES = {
   } },
 
   fares: { title: "How fares work", body: () => `
-    <section class="card prose"><p>Today every MBTA subway trip costs <b>$2.40</b>, one stop or thirteen. Short-Hop charges by distance using
-      <b>Washington Metrorail's fare model</b>, scaled so the longest trips cost exactly today's fare. <b>No trip ever costs more than now.</b></p></section>
-    <section class="card"><table class="t"><tr><th></th><th class="n">Washington</th><th class="n">Short-Hop</th></tr>
-      <tr><td>Base fare · first 3 composite miles</td><td class="n">${money(W.base)}</td><td class="n">${money(R.base)}</td></tr>
-      <tr><td>Each extra mile (20% of base)</td><td class="n">${money(W.per_mile)}</td><td class="n">${money(R.per_mile)}</td></tr>
-      <tr><td>Maximum (3 × base)</td><td class="n">${money(W.max)}</td><td class="n">${money(R.max)}</td></tr>
-      <tr><td>Nights after 9:30pm &amp; weekends</td><td class="n">${money(W.offpeak_min)}–${money(W.offpeak_max)}</td><td class="n">${money(R.offpeak_min)}–${money(R.offpeak_max)}</td></tr>
-      <tr><td>Reduced fare</td><td class="n">50%</td><td class="n">50%</td></tr>
-      <tr><td>Missed tap-out</td><td class="n">base fare</td><td class="n">${money(R.missed_tap_out)}</td></tr>
-      <tr><td>Weekly cap</td><td class="n">—</td><td class="n">${money(S.WEEK_CAP.regular)}</td></tr></table>
-      <p class="fine">Composite miles = average of track and straight-line distance. Fares round up to $0.05. Boston charges today's fare for a missed tap-out because its gates check entry only.</p></section>
-    <section class="card"><div class="card-h"><h3>Example trips</h3></div><table class="t"><tr><th>Trip</th><th class="n">mi</th><th class="n">Peak</th><th class="n">Night</th><th class="n">Reduced</th></tr>
-      ${net.examples.map(e => `<tr><td>${esc(e.from)} → ${esc(e.to)}</td><td class="n">${e.composite_mi.toFixed(1)}</td><td class="n">${money(e.fare)}</td><td class="n">${money(e.offpeak)}</td><td class="n">${money(e.reduced)}</td></tr>`).join("")}</table></section>` },
+    <section class="card prose"><p>Today every MBTA subway trip costs <b>$2.40</b>, one stop or thirteen. With Short-Hop,
+      <b>riding a line from its first stop to its last costs $2.40</b>, and every shorter trip pays in proportion to the distance you ride.
+      <b>No trip ever costs more than now.</b></p></section>
+    <section class="card"><div class="card-h"><h3>The rule</h3></div>
+      <p class="formula">fare = ${money(R.max)} × <span>your distance</span> ÷ <span>whole line</span></p>
+      <table class="t">
+      <tr><td>Whole line, end to end</td><td class="n">${money(R.max)}</td></tr>
+      <tr><td>Shorter trips</td><td class="n">in proportion</td></tr>
+      <tr><td>Minimum fare</td><td class="n">${money(R.min)}</td></tr>
+      <tr><td>Reduced fare (students, seniors, TAP)</td><td class="n">50%</td></tr>
+      <tr><td>Missed tap-out</td><td class="n">${money(R.missed_tap_out)}</td></tr>
+      <tr><td>Weekly cap (7-day pass price)</td><td class="n">${money(S.WEEK_CAP.regular)}</td></tr></table>
+      <p class="fine">Distance is measured the way Washington Metrorail does: composite miles, the average of track and straight-line distance,
+        rounded up to $0.05. The ${money(R.min)} minimum is one third of the maximum — Washington's ratio (${money(W.base)} : ${money(W.max)}).
+        A missed tap-out costs today's fare because MBTA gates check entry only.</p></section>
+    <section class="card"><div class="card-h"><h3>Example trips</h3></div><table class="t"><tr><th>Trip</th><th class="n">of line</th><th class="n">Fare</th><th class="n">Reduced</th></tr>
+      ${net.examples.map(e => `<tr><td>${esc(e.from)} → ${esc(e.to)}</td><td class="n">${Math.min(100, Math.round(e.composite_mi / e.line_mi * 100))}%</td><td class="n">${money(e.fare)}</td><td class="n">${money(e.reduced)}</td></tr>`).join("")}</table></section>` },
 
   help: { title: "Help & FAQ", body: () => `<section class="card faq">${[
     ["How do I pay for a trip?", "Tap in at the gate with your ticket (the QR code on the Ticket tab), ride, then tap out where you get off. The fare is set when you tap out."],
+    ["How is my fare worked out?", `Ride a line from its first stop to its last and you pay ${money(R.max)}. Shorter trips pay the same share of ${money(R.max)} as the share of the line you ride — never less than ${money(R.min)}.`],
     ["What if I forget to tap out?", `You're charged today's full fare (${money(R.missed_tap_out)}) — never more than you pay now. If you did tap out and were charged anyway, open the trip and tap “Report a problem”.`],
     ["Why does the QR code keep changing?", "It refreshes every 30 seconds so a screenshot can't be reused by someone else."],
     ["What's the weekly fare cap?", `Once you've spent ${money(S.WEEK_CAP.regular)} (the price of a 7-day pass) in any 7 days, the rest of your rides that week are free.`],

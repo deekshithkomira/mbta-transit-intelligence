@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-11-20T04:31:55+00:00",
+ "generated_at": "2026-11-20T05:18:20+00:00",
  "sources": [
   {
    "key": "alerts_2025",
@@ -104,10 +104,10 @@
   ],
   "short_hop": [
    "Today Copley \u2192 Arlington (1 stop) and Copley \u2192 Medford/Tufts (13 stops, 6.0 track miles) both cost $2.40.",
-   "Washington Metrorail model, scaled to Boston: $0.80 covers the first 3 composite miles, +$0.16 per extra mile, maximum $2.40 (today's fare) \u2014 the same ratios as Washington's $2.25 / $0.45 / $6.75.",
-   "Copley \u2192 Arlington costs $0.80; Copley \u2192 Medford/Tufts 5.2 composite miles = $1.20; Alewife \u2192 Braintree reaches the $2.40 maximum (cap reached at 13 composite miles).",
-   "Nights after 9:30pm and weekends: $0.80\u2013$0.90; reduced fares (students, seniors) are half price; a missing tap-out is charged $2.40.",
-   "Revenue break-even: a $0.80 short trip must grow paying riders on it by 200%; Copley \u2192 Medford/Tufts at $1.20 needs 100%. Pilot before system-wide rollout."
+   "Short-Hop rule: riding a line end to end costs $2.40; shorter trips pay in proportion to distance (Washington-style composite miles, rounded up to $0.05), minimum $0.80.",
+   "Copley \u2192 Medford/Tufts = 5.24 of 7.05 composite miles on the whole Green Line E = $1.80; Copley \u2192 Arlington = the $0.80 minimum. Every end-to-end trip (Heath Street \u2192 Medford/Tufts, Alewife \u2192 Braintree, Oak Grove \u2192 Forest Hills, Wonderland \u2192 Bowdoin) costs exactly $2.40.",
+   "Reduced fares (students, seniors) are half price; a missing tap-out is charged $2.40.",
+   "Revenue break-even: a $0.80 short trip must grow paying riders on it by 200%; Copley \u2192 Medford/Tufts at $1.80 needs 33%. Pilot before system-wide rollout."
   ]
  }
 }

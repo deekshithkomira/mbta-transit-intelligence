@@ -351,13 +351,13 @@ function fares(fi) {
 
 /* ---- Short-Hop: rules and examples (the interactive planner is the rider app in site/app/) ---- */
 function shortHop(sh) {
-  const r = sh.rules, w = sh.research.wmata, $ = id => document.getElementById(id), m = x => "$" + x.toFixed(2);
-  $("sh-rules").innerHTML = "<tr><th></th><th>Washington</th><th>Boston</th></tr>" +
-    [["Base fare · first 3 composite mi", w.base, r.base], ["Each extra composite mile", w.per_mile, r.per_mile],
-     ["Maximum", w.max, r.max]].map(([k, a, b]) => `<tr><td>${k}</td><td class="n">${m(a)}</td><td class="n g">${m(b)}</td></tr>`).join("") +
-    `<tr><td>Nights &amp; weekends</td><td class="n">${m(w.offpeak_min)}–${m(w.offpeak_max)}</td><td class="n g">${m(r.offpeak_min)}–${m(r.offpeak_max)}</td></tr>`;
-  $("sh-table").innerHTML = "<tr><th>Trip</th><th>mi</th><th>Today</th><th>Short-Hop</th><th>Break-even</th></tr>" +
-    sh.examples.map(e => `<tr><td>${e.from} → ${e.to}</td><td class="n">${e.composite_mi.toFixed(1)}</td><td class="n">${m(sh.flat_fare)}</td>` +
+  const r = sh.rules, $ = id => document.getElementById(id), m = x => "$" + x.toFixed(2);
+  $("sh-rules").innerHTML = "<tr><th>Rule</th><th>Short-Hop</th></tr>" +
+    [["Whole line, first stop to last", m(r.max)], ["Shorter trips", "in proportion to distance"], ["Minimum fare", m(r.min)],
+     ["Reduced fare", "50%"], ["Missed tap-out", m(r.missed_tap_out)], ["Today (any trip)", m(sh.flat_fare)]]
+      .map(([k, v]) => `<tr><td>${k}</td><td class="n g">${v}</td></tr>`).join("");
+  $("sh-table").innerHTML = "<tr><th>Trip</th><th>of line</th><th>Today</th><th>Short-Hop</th><th>Break-even</th></tr>" +
+    sh.examples.map(e => `<tr><td>${e.from} → ${e.to}</td><td class="n">${Math.min(100, Math.round(e.composite_mi / e.line_mi * 100))}%</td><td class="n">${m(sh.flat_fare)}</td>` +
       `<td class="n g">${m(e.fare)}</td><td class="n">${e.fare >= sh.flat_fare ? "—" : "+" + Math.round(e.breakeven_growth * 100) + "%"}</td></tr>`).join("");
 }
 
